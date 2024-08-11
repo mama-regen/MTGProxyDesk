@@ -1,0 +1,57 @@
+﻿<UserControl x:Class="MTGProxyDesk.NumberPicker"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MTGProxyDesk"
+             mc:Ignorable="d" 
+             d:DesignHeight="50" d:DesignWidth="160">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition Width="60"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+
+        <TextBox
+            Text="{Binding Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+            Grid.Column="0" 
+            FontSize="40" 
+            TextAlignment="Right" 
+            HorizontalAlignment="Right"
+            Width="100" 
+            Height="50" 
+            Margin="0"
+            Padding="5,-5,5,0"
+            VerticalAlignment="Stretch"
+        />
+        <Grid Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="60"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+
+            <Button DataContext="this" Click="Add" Grid.Row="0" Content="🢁" BorderThickness="0,0,0,1" BorderBrush="#1c1c1c">
+                <Button.Background>
+                    <SolidColorBrush Color="#4f4f4f"/>
+                </Button.Background>
+                <Button.Foreground>
+                    <SolidColorBrush Color="#dfdfdf"/>
+                </Button.Foreground>
+            </Button>
+            <Button DataContext="this" Click="Subtract" Grid.Row="1" Content="🢃" BorderThickness="0,1,0,0" BorderBrush="Black">
+                <Button.Background>
+                    <SolidColorBrush Color="#4f4f4f"/>
+                </Button.Background>
+                <Button.Foreground>
+                    <SolidColorBrush Color="#dfdfdf"/>
+                </Button.Foreground>
+            </Button>
+        </Grid>
+    </Grid>
+</UserControl>
