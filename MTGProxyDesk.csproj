@@ -10,6 +10,9 @@
 
   <ItemGroup>
     <None Remove="card_back.png" />
+    <None Remove="scripts\cds.py" />
+    <None Remove="img\card_back.png" />
+    <None Remove="scripts\py_readme.md" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,7 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="card_back.png" />
+    <Resource Include="scripts\cds.py" />
+    <Resource Include="img\card_back.png" />
+    <Resource Include="scripts\py_readme.md" />
   </ItemGroup>
 
   <ItemGroup>

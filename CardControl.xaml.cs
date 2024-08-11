@@ -11,6 +11,8 @@ namespace MTGProxyDesk
     [ContentProperty(nameof(Children))]
     public partial class CardControl : UserControl, INotifyPropertyChanged
     {
+        private BitmapImage? defaultImage = null;
+
         private Card? _Card;
         public Card? Card
         {
@@ -129,8 +131,18 @@ namespace MTGProxyDesk
 
         private void SetToDefaultImage()
         {
-            string currentAssemblyPath = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
-            CardImage = new BitmapImage(new Uri(String.Format("file:///{0}/{1}", currentAssemblyPath, "img/card_back.png")));
+            if (defaultImage == null)
+            {
+                defaultImage = new BitmapImage(
+                    new Uri(
+                        @"pack://application:,,,/" + 
+                        Assembly.GetCallingAssembly().GetName().Name + 
+                        ";component/img/card_back.png", 
+                        UriKind.Absolute
+                    )
+                );
+            }
+            CardImage = defaultImage;
         }
     }
 }

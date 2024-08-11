@@ -4,6 +4,8 @@ using System.IO;
 using System.Net;
 using System.Windows.Markup;
 using System.Text.RegularExpressions;
+using System.Reflection;
+using System.Text;
 
 namespace MTGProxyDesk
 {
@@ -95,6 +97,43 @@ namespace MTGProxyDesk
                 if (EqualityComparer<T>.Default.Equals(items.ElementAt(i), search)) return i;
             }
             return -1;
+        }
+
+        public static string GetDocumentsFolder()
+        {
+            return Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "MTG_ProxyDesk");
+        }
+
+        public static void EnsureDocumentsFolder()
+        {
+            string myDocsDir = GetDocumentsFolder();
+            if (!Path.Exists(myDocsDir))
+            {
+                Directory.CreateDirectory(myDocsDir);
+    
+                foreach (string file in new string[] { "cds.py", "py_readme.md" }) {
+                    Uri makeUri = new Uri(
+                        @"pack://application:,,,/" +
+                        Assembly.GetCallingAssembly().GetName().Name +
+                        ";component/scripts/" + file,
+                        UriKind.Absolute
+                    );
+                    var resourceInfo = Application.GetResourceStream(makeUri);
+
+                    using (FileStream write = new FileStream(Path.Join(myDocsDir, file == "cds.py" ? "_ConvertDeck.py" : "README.md"), FileMode.Create, FileAccess.Write))
+                    {
+                        resourceInfo.Stream.CopyTo(write);
+                    }
+                }
+                using (FileStream write = new FileStream(Path.Join(myDocsDir, "ConvertDeck.bat"), FileMode.Create, FileAccess.Write))
+                {
+                    string fileContent = "python --version>NUL\nif errorlevel 1 goto noPython\n\ngoto:runConverter\n\n";
+                    fileContent += ":noPython\nmsg \"%username%\" \"Python 3 is required to run the converter.\"\nexit\n\n";
+                    fileContent += ":runConverter\npython -m ensurepip\npython ./_ConvertDeck.py";
+                    byte[] byteContent = Encoding.ASCII.GetBytes(fileContent);
+                    write.Write(byteContent, 0, byteContent.Length);
+                }
+            }
         }
     }
 }

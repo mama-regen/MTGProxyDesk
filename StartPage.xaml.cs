@@ -2,6 +2,8 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.IO;
+using System.Reflection;
+using System.Windows.Resources;
 
 namespace MTGProxyDesk
 {
@@ -13,15 +15,16 @@ namespace MTGProxyDesk
         public StartPage()
         {
             InitializeComponent();
+            Helper.EnsureDocumentsFolder();
             magicDeck = MagicDeck.Instance;
         }
 
         public void BrowseDeck(object sender, RoutedEventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
-            ofd.InitialDirectory = Path.Join(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "decks");
+            ofd.InitialDirectory = Helper.GetDocumentsFolder();
             ofd.Filter = "MTG Proxy Deck (*.mpd)|*.mpd|All Files (*.*)|*.*";
-            ofd.FilterIndex = 2;
+            ofd.FilterIndex = 1;
             ofd.RestoreDirectory = true;
 
             if (ofd.ShowDialog() == true)
