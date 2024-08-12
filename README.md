@@ -10,5 +10,5 @@ If you have an existing list of the names of cards in your deck in the format th
 
 ## Current Progress
 - The initial page and the edit page are created
-- The edit page will load a deck via **Browse** and **Edit** but does not load the deck into the controls
+- The edit page will load a deck via **Browse** and **Edit**
 - The edit page allows for adding and removing cards via the controls but does not currently save.

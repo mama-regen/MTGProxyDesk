@@ -1,7 +1,6 @@
 import os, sys, subprocess, tempfile
 from time import time, sleep
 from json import loads as parse
-from typing import Callable, Literal
 from urllib import request
 
 def ImportInstall(*args) -> None:
@@ -31,10 +30,17 @@ def FirstImg(card) -> tuple[str, str]:
         result: str|None  = card["image_uris"][c]
         if result != None: return (result, card["id"]+(".png" if c == ".png" else ".jpg"))
 
+def AllowAny(card) -> int:
+    return 1 if (
+        "basic land" in card["type_line"].lower() or
+        f"a deck can any number of cards named {card["name"]}" in card["oracle_text"].lower()
+    ) else 0
+
 if __name__ == "__main__":
     ImportInstall('tkinter', 'requests', 'typing')
     
     from tkinter import filedialog, messagebox
+    from typing import Callable, Literal
     import requests as req
 
     Here: str = os.path.dirname(os.path.abspath((__file__)))
@@ -69,7 +75,7 @@ if __name__ == "__main__":
 
         image: tuple[str, str] = FirstImg(card_actual)
         request.urlretrieve(image[0], temp_fldr(image[1]))
-        cards.append([card_actual["id"], cnt])
+        cards.append([card_actual["id"], cnt, AllowAny(card_actual)])
 
         wait_for: float = 100 - ((time() * 1000) - now)
         if (wait_for > 0): sleep(wait_for/1000)
@@ -94,6 +100,7 @@ if __name__ == "__main__":
             print(f"Converting card[{c}/{len(cards)}]")
             for b in [ord(ch) for ch in card[0].replace("-", "")]: writer.write(byte(b))
             writer.write(byte(card[1]))
+            writer.write(byte(card[2]))
             ext: Literal[".png", ".jpg"] = ".png" if os.path.exists(temp_fldr(card[0]+".png")) else ".jpg"
             imgSize: int = os.path.getsize(temp_fldr(card[0]+ext))
             writer.write(byte(imgSize, 4))

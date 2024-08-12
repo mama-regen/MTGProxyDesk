@@ -185,11 +185,12 @@ namespace MTGProxyDesk
             AllowAnyAmount = card.Type_Line.ToLower().Contains("basic land") || card.Oracle_Text.ToLower().Contains("a deck can have any number of cards named " + card.Name.ToLower());
         }
 
-        public Card(string id, string localImagePath, int count)
+        public Card(string id, string localImagePath, int count, bool anyAmount = false)
         {
             Id = id;
             LocalImagePath = localImagePath;
             Count = count;
+            AllowAnyAmount = anyAmount;
         }
 
         public static async Task<Card?> SearchCard(string name)
@@ -213,7 +214,7 @@ namespace MTGProxyDesk
             HttpClient client = new HttpClient();
             client.BaseAddress = new Uri(URL);
             client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("MTGProxyDesk/0.1");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("MTGProxyDesk/0.2");
 
             string q = (string.IsNullOrWhiteSpace(query) || query.Trim()[0] == '?' ? "?" : "&");
             q += "version=png&format=json";

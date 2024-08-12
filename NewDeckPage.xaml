@@ -24,35 +24,22 @@
                 <Label Content="Commander" HorizontalAlignment="Right" FontSize="40" Margin="0,0,30,0" VerticalAlignment="Top"/>
                 <Label Content="Deck" HorizontalAlignment="Left" FontSize="40" Margin="30,0,0,0"  VerticalAlignment="Bottom"/>
                 <local:CardControl Grid.Column="1" Margin="5" x:Name="Commander">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*"/>
-                            <RowDefinition Height="2*"/>
-                            <RowDefinition Height="2*"/>
-                            <RowDefinition Height="2*"/>
-                            <RowDefinition Height="1*"/>
-                        </Grid.RowDefinitions>
-
-                        <Button BorderThickness="0" Grid.Row="1" Margin="30,10,30,0" Height="30" Content="Add" Click="AddCommander">
-                            <Button.Background>
-                                <SolidColorBrush Color="#4f4f4f"/>
-                            </Button.Background>
-                            <Button.Foreground>
-                                <SolidColorBrush Color="#dfdfdf"/>
-                            </Button.Foreground>
-                        </Button>
-                        <Button BorderThickness="0" Visibility="Hidden" Grid.Row="1" Margin="30,10,30,0" Height="30" Content="Remove" Click="RemoveCommander">
-                            <Button.Background>
-                                <SolidColorBrush Color="#4f4f4f"/>
-                            </Button.Background>
-                            <Button.Foreground>
-                                <SolidColorBrush Color="#dfdfdf"/>
-                            </Button.Foreground>
-                        </Button>
-                    </Grid>
+                    <Button BorderThickness="0" Margin="30,10,30,0" Height="30" Content="Add" Click="AddCommander">
+                        <Button.Background>
+                            <SolidColorBrush Color="#4f4f4f"/>
+                        </Button.Background>
+                        <Button.Foreground>
+                            <SolidColorBrush Color="#dfdfdf"/>
+                        </Button.Foreground>
+                    </Button>
+                    <Button BorderThickness="0" Visibility="Hidden" Margin="30,10,30,0" Height="30" Content="Remove" Click="RemoveCommander">
+                        <Button.Background>
+                            <SolidColorBrush Color="#4f4f4f"/>
+                        </Button.Background>
+                        <Button.Foreground>
+                            <SolidColorBrush Color="#dfdfdf"/>
+                        </Button.Foreground>
+                    </Button>
                 </local:CardControl>
                 <ScrollViewer Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" BorderBrush="DarkGray" BorderThickness="1" Margin="0" Padding="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel Name="DeckContainer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">

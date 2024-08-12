@@ -1,8 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq.Expressions;
+﻿using System.IO;
 
 namespace MTGProxyDesk
 {
@@ -21,6 +17,25 @@ namespace MTGProxyDesk
         public int LastIdx
         {
             get { return _LastIdx; }
+        }
+
+        public int CardCount
+        {
+            get => Cards.Where(c => c != null).Count();
+        }
+
+        public List<Card> CardList
+        {
+            get 
+            {
+                int i = 0;
+                return Cards.Select(c =>
+                {
+                    if (c != null) c.Count = Shuffle.Where(s => s == i).Count();
+                    i++;
+                    return c;
+                }).Where(c => c != null).ToList() as List<Card>;
+            }
         }
 
         private MagicDeck() 
@@ -58,8 +73,8 @@ namespace MTGProxyDesk
 
                 for (int cc = 0; cc < cardCount; cc++)
                 {
-                    byte[] idBytes = new byte[37];
-                    fs.Read(idBytes, 0, 37);
+                    byte[] idBytes = new byte[38];
+                    fs.Read(idBytes, 0, 38);
 
                     string id = "";
                     for (int i = 0; i < 8; i++) id += (char)idBytes[i];
@@ -73,7 +88,8 @@ namespace MTGProxyDesk
                     for (int i = 20; i < 32; i++) id += (char)idBytes[i];
 
                     int count = idBytes[32];
-                    int imgLen = (idBytes[33] << 24) | (idBytes[34] << 16) | (idBytes[35] << 8) | (idBytes[36]);
+                    bool anyAmount = idBytes[33] != 0;
+                    int imgLen = (idBytes[34] << 24) | (idBytes[35] << 16) | (idBytes[36] << 8) | (idBytes[37]);
 
                     byte[] imgBytes = new byte[imgLen];
                     fs.Read(imgBytes, 0, imgLen);
@@ -92,13 +108,13 @@ namespace MTGProxyDesk
                     string imgPath = Path.Join(temp_filePath, id + (isPng ? ".png" : ".jpg"));
                     File.WriteAllBytes(imgPath, imgBytes);
 
-                    Card card = new Card(id, imgPath, count);
+                    Card card = new Card(id, imgPath, 1, anyAmount);
 
                     if (isCommander && Commander == null) Commander = card;
                     else
                     {
-                        Cards.Append(card);
-                        Shuffle.Enqueue(Cards.Count() - 1);
+                        Cards.Add(card);
+                        for (int i = 0; i < count; i++) Shuffle.Enqueue(Cards.Count() - 1);
                     }
                 }
             }
@@ -118,14 +134,14 @@ namespace MTGProxyDesk
         public List<Card> Next(int howMany = 1)
         {
             List<Card> result = new List<Card>();
-            for (int i = 0; i < howMany; i++)
-            {
-                if (Cards[i] == null)
-                {
 
-                }
-                result.Append(Cards[i]);
+            int i = 0;
+            while (result.Count() < howMany)
+            {
+                if (Cards[Shuffle.ElementAt(i)] != null) result.Add(Cards[Shuffle.ElementAt(i)]!);
+                i++;
             }
+
             return result;
         }
 
@@ -220,8 +236,8 @@ namespace MTGProxyDesk
             }
 
             List<byte> buffer = new List<byte>();
-            buffer.Append((byte)(Commander == null ? 0 : 1));
-            buffer.Append((byte)(headCount.Count() + (Commander == null ? 0 : 1)));
+            buffer.Add((byte)(Commander == null ? 0 : 1));
+            buffer.Add((byte)(headCount.Count() + (Commander == null ? 0 : 1)));
 
             foreach (KeyValuePair<string, (int, string)> item in headCount)
             {
@@ -229,15 +245,15 @@ namespace MTGProxyDesk
                 int count = item.Value.Item1;
                 string imgPath = item.Value.Item2;
 
-                foreach (char c in id.ToCharArray()) buffer.Append((byte)c);
-                buffer.Append((byte)count);
+                foreach (char c in id.ToCharArray()) buffer.Add((byte)c);
+                buffer.Add((byte)count);
 
                 Func<int, int, byte> MakeByte = (i, p) => (byte)((i >> (8 * p)) & 255);
 
                 using (FileStream stream = new FileStream(imgPath, FileMode.Open))
                 {
                     int imgLen = (int)stream.Length;
-                    for (int i = 3; i >= 0; i--) buffer.Append(MakeByte(imgLen, i));
+                    for (int i = 3; i >= 0; i--) buffer.Add(MakeByte(imgLen, i));
                     byte[] bits = new byte[imgLen];
                     stream.Read(bits, 0, imgLen);
                     buffer.Concat(bits);
