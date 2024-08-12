@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
+using System.Windows.Media.Imaging;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace MTGProxyDesk
@@ -164,7 +165,7 @@ namespace MTGProxyDesk
         }
 
         public string Id { get; private set; }
-        public string LocalImagePath { get; private set; }
+        public BitmapImage Image { get; private set; }
         public bool AllowAnyAmount { get; private set; } = false;
         private int _Count = 1;
         public int Count
@@ -181,14 +182,14 @@ namespace MTGProxyDesk
             if (card.Image_Uris.Png != null) ext = ".png";
             string filepath = Path.Join(Path.GetTempPath(), "mtg_prox_desk", card.Id + ext);
 
-            LocalImagePath = Helper.DownloadImage(new Uri(card.Image_Uris.Png ?? card.Image_Uris.Large ?? card.Image_Uris.Normal!), filepath);
+            Image = Helper.DownloadImage(new Uri(card.Image_Uris.Png ?? card.Image_Uris.Large ?? card.Image_Uris.Normal!), filepath);
             AllowAnyAmount = card.Type_Line.ToLower().Contains("basic land") || card.Oracle_Text.ToLower().Contains("a deck can have any number of cards named " + card.Name.ToLower());
         }
 
         public Card(string id, string localImagePath, int count, bool anyAmount = false)
         {
             Id = id;
-            LocalImagePath = localImagePath;
+            Image = Helper.LoadBitmap(localImagePath);
             Count = count;
             AllowAnyAmount = anyAmount;
         }

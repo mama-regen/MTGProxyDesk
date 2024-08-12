@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using Microsoft.Win32;
+using System.Security.Cryptography;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -184,6 +186,16 @@ namespace MTGProxyDesk
             if (card.Count != value) ((NumberPicker)sender).Value = card.Count.ToString();
         }
 
+        public void SaveDeck(object sender, RoutedEventArgs e)
+        {
+            SaveDeck();
+        }
+
+        public void GoBack(object sender, RoutedEventArgs e)
+        {
+            GoBack();
+        }
+
         private CardControl NewCardControl()
         {
             CardControl newCardCtrl = new CardControl();
@@ -352,7 +364,33 @@ namespace MTGProxyDesk
 
         private void SaveDeck()
         {
+            _Deck.ClearDeck();
+            _Deck.Commander = Commander.Card;
+            
+            foreach (CardControl cardCtrl in DeckContainer.GetChildrenOfType<CardControl>())
+            {
+                if (cardCtrl.Card == null) continue;
+                Card card = cardCtrl.Card;
+                int count = card.Count;
+                card.Count = 1;
+                _Deck.Add(card, count);
+            }
 
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.InitialDirectory = Helper.GetDocumentsFolder();
+            sfd.Filter = "MTG Proxy Deck (*.mpd)|*.mpd|All Files (*.*)|*.*";
+            sfd.FilterIndex = 1;
+            sfd.ShowDialog();
+
+            if (sfd.FileName != "") _Deck.Save(sfd.FileName);
+
+            GoBack();
+        }
+
+        private void GoBack()
+        {
+            StartPage start = new StartPage();
+            this.NavigationService.Navigate(start);
         }
     }
 }

@@ -1,4 +1,8 @@
-﻿using System.IO;
+﻿using System.ComponentModel;
+using System.IO;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 
 namespace MTGProxyDesk
 {
@@ -6,6 +10,18 @@ namespace MTGProxyDesk
     {
         private static MagicDeck? _instance;
         private static readonly object _lock = new object();
+
+        private string? _filePath;
+        public string FilePath
+        {
+            get => _filePath ?? "";
+        }
+
+        private string? _name;
+        public string Name
+        {
+            get => _name ?? "";
+        }
 
         private List<Card?> Cards;
         private Queue<int> Shuffle;
@@ -56,10 +72,12 @@ namespace MTGProxyDesk
             }
         }
 
-        public void Load(string filePath)
+        public void Load(string filePath, BackgroundWorker bgWorker)
         {
             Commander = null;
             Cards = new List<Card?>();
+
+            _filePath = filePath;
 
             string temp_filePath = Path.Join(Path.GetTempPath(), "mtg_prox_desk");
             if (!Path.Exists(temp_filePath)) Directory.CreateDirectory(temp_filePath);
@@ -73,6 +91,9 @@ namespace MTGProxyDesk
 
                 for (int cc = 0; cc < cardCount; cc++)
                 {
+                    float perc = cc * 100 / (float)cardCount;
+                    bgWorker.ReportProgress((int)Math.Ceiling(perc));
+
                     byte[] idBytes = new byte[38];
                     fs.Read(idBytes, 0, 38);
 
@@ -118,6 +139,7 @@ namespace MTGProxyDesk
                     }
                 }
             }
+            _name = Path.GetFileName(filePath);
 
             Shuffle.Shuffle();
         }
@@ -223,40 +245,44 @@ namespace MTGProxyDesk
 
         public void Save(string filePath)
         {
-            Dictionary<string, (int, string)> headCount = new Dictionary<string, (int, string)>();
-            if (Commander != null) headCount[Commander.Id] = (1, Commander.LocalImagePath);
+            Dictionary<string, (int, BitmapImage, bool)> headCount = new Dictionary<string, (int, BitmapImage, bool)>();
+            if (Commander != null) headCount[Commander.Id] = (1, Commander.Image, false);
             foreach (Card? card in Cards)
             {
                 if (card == null || card.Id == "") continue;
                 if (headCount.ContainsKey(card.Id)) headCount[card.Id] = (
                     headCount[card.Id].Item1 + 1, 
-                    headCount[card.Id].Item2
+                    headCount[card.Id].Item2,
+                    headCount[card.Id].Item3
                 );
-                else headCount[card.Id] = (1, card.LocalImagePath);
+                else headCount[card.Id] = (1, card.Image, card.AllowAnyAmount);
             }
 
             List<byte> buffer = new List<byte>();
             buffer.Add((byte)(Commander == null ? 0 : 1));
-            buffer.Add((byte)(headCount.Count() + (Commander == null ? 0 : 1)));
+            buffer.Add((byte)headCount.Count());
 
-            foreach (KeyValuePair<string, (int, string)> item in headCount)
+            foreach (KeyValuePair<string, (int, BitmapImage, bool)> item in headCount)
             {
                 string id = item.Key.Replace("-", "");
                 int count = item.Value.Item1;
-                string imgPath = item.Value.Item2;
+                BitmapImage img = item.Value.Item2;
+                bool allowAny = item.Value.Item3;
 
                 foreach (char c in id.ToCharArray()) buffer.Add((byte)c);
                 buffer.Add((byte)count);
+                buffer.Add((byte)(allowAny ? 1 : 0));
 
                 Func<int, int, byte> MakeByte = (i, p) => (byte)((i >> (8 * p)) & 255);
 
-                using (FileStream stream = new FileStream(imgPath, FileMode.Open))
+                PngBitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(img));
+                using (MemoryStream ms = new MemoryStream())
                 {
-                    int imgLen = (int)stream.Length;
-                    for (int i = 3; i >= 0; i--) buffer.Add(MakeByte(imgLen, i));
-                    byte[] bits = new byte[imgLen];
-                    stream.Read(bits, 0, imgLen);
-                    buffer.Concat(bits);
+                    encoder.Save(ms);
+                    int imgSize = (int)ms.Length;
+                    for (int i = 3; i >= 0; i--) buffer.Add(MakeByte(imgSize, i));
+                    buffer = buffer.Concat(ms.ToArray()).ToList();
                 }
             }
 
@@ -265,6 +291,17 @@ namespace MTGProxyDesk
             {
                 writer.Write(buffer.ToArray(), 0, buffer.Count());
             }
+
+            _name = Path.GetFileName(filePath);
+        }
+
+        public void ClearDeck()
+        {
+            Commander = null;
+            Cards = new List<Card?>();
+            Shuffle = new Queue<int>();
+            _filePath = null;
+            _name = null;
         }
     }
 

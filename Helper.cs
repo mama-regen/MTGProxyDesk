@@ -6,6 +6,7 @@ using System.Windows.Markup;
 using System.Text.RegularExpressions;
 using System.Reflection;
 using System.Text;
+using System.Windows.Media.Imaging;
 
 namespace MTGProxyDesk
 {
@@ -63,9 +64,9 @@ namespace MTGProxyDesk
             return (T)XamlReader.Parse(XamlWriter.Save(control));
         }
 
-        public static string DownloadImage(Uri uri, string filepath)
+        public static BitmapImage DownloadImage(Uri uri, string filepath)
         {
-            if (File.Exists(filepath)) return String.Format("file:///{0}", filepath);
+            if (File.Exists(filepath)) return LoadBitmap(filepath);
 
             WebRequest request = WebRequest.Create(uri);
             WebResponse response = request.GetResponse();
@@ -79,7 +80,7 @@ namespace MTGProxyDesk
                     stream.CopyTo(memStream);
                     memStream.Position = 0;
                     File.WriteAllBytes(filepath, memStream.ToArray());
-                    return String.Format("file:///{0}", filepath);
+                    return LoadBitmap(filepath);
                 }
             }
         }
@@ -97,6 +98,20 @@ namespace MTGProxyDesk
                 if (EqualityComparer<T>.Default.Equals(items.ElementAt(i), search)) return i;
             }
             return -1;
+        }
+
+        public static BitmapImage LoadBitmap(string filePath)
+        {
+            using (FileStream fs = new FileStream(filePath, FileMode.Open))
+            {
+                BitmapImage image = new BitmapImage();
+                image.BeginInit();
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.StreamSource = fs;
+                image.EndInit();
+                image.Freeze();
+                return image;
+            }
         }
 
         public static string GetDocumentsFolder()

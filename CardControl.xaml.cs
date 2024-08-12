@@ -28,7 +28,7 @@ namespace MTGProxyDesk
                 {
                     _Card = value;
                     this.OnPropertyChanged("Card");
-                    CardImage = new BitmapImage(new Uri(_Card.LocalImagePath));
+                    CardImage = _Card.Image;
                 }
             }
         }

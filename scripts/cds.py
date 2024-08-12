@@ -32,8 +32,10 @@ def FirstImg(card) -> tuple[str, str]:
 
 def AllowAny(card) -> int:
     return 1 if (
-        "basic land" in card["type_line"].lower() or
-        f"a deck can any number of cards named {card["name"]}" in card["oracle_text"].lower()
+        "basic land" in card["type_line"].lower() or (
+            "oracle_text" in card and
+            f"a deck can any number of cards named {card["name"]}" in card["oracle_text"].lower()
+        )
     ) else 0
 
 if __name__ == "__main__":

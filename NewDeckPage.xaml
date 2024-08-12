@@ -41,6 +41,22 @@
                         </Button.Foreground>
                     </Button>
                 </local:CardControl>
+                <Button Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="30,0,30,0" BorderThickness="0" Margin="30" Height="30" Content="Save" Click="SaveDeck">
+                    <Button.Background>
+                        <SolidColorBrush Color="#4f4f4f"/>
+                    </Button.Background>
+                    <Button.Foreground>
+                        <SolidColorBrush Color="#dfdfdf"/>
+                    </Button.Foreground>
+                </Button>
+                <Button Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="30,0,30,0" BorderThickness="0" Margin="30,30,140,30" Height="30" Content="Back" Click="GoBack">
+                    <Button.Background>
+                        <SolidColorBrush Color="#4f4f4f"/>
+                    </Button.Background>
+                    <Button.Foreground>
+                        <SolidColorBrush Color="#dfdfdf"/>
+                    </Button.Foreground>
+                </Button>
                 <ScrollViewer Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" BorderBrush="DarkGray" BorderThickness="1" Margin="0" Padding="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel Name="DeckContainer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                         <Grid>
@@ -82,75 +98,4 @@
             </Grid>
         </Viewbox>
     </Border>
-
-    <!--<Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="6*" />
-            <ColumnDefinition Width="2*" />
-            <ColumnDefinition Width="6*" />
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="2*" />
-            <RowDefinition Height="4*" />
-        </Grid.RowDefinitions>
-        <Grid.Background>
-            <SolidColorBrush Color="#3f3f3f"/>
-        </Grid.Background>
-
-        <Viewbox Grid.Column="0" Stretch="Uniform">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*"/>
-                    <RowDefinition Height="1*"/>
-                </Grid.RowDefinitions>
-                
-                <Label Content="Commander" HorizontalAlignment="Stretch" Margin="70,0,0,10" VerticalAlignment="Top"/>
-                <Label Grid.Row="1" Content="Deck" HorizontalAlignment="Stretch" Margin="5,10,0,0" VerticalAlignment="Bottom"/>
-            </Grid>
-        </Viewbox>
-        <Viewbox Grid.Column="1" Stretch="Uniform">
-            <local:CardControl Margin="5" x:Name="Commander">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="2*"/>
-                        <RowDefinition Height="2*"/>
-                        <RowDefinition Height="2*"/>
-                        <RowDefinition Height="1*"/>
-                    </Grid.RowDefinitions>
-
-                    <Button Grid.Row="1" Margin="30,100,30,0" Height="30" Content="Add" Click="AddCommander"></Button>
-                    <Button Visibility="Hidden" Grid.Row="1" Margin="30,100,30,0" Height="30" Content="Remove" Click="RemoveCommander"></Button>
-                </Grid>
-            </local:CardControl>
-        </Viewbox>
-        <ScrollViewer Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" BorderBrush="DarkGray" BorderThickness="1" Margin="0" Padding="0" Name="DeckList" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <StackPanel Name="DeckList" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-            <StackPanel Name="DeckList" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-                <local:CardControl Grid.Column="0" Grid.Row="0" Margin="5" Height="150" HorizontalAlignment="Left">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*"/>
-                            <RowDefinition Height="2*"/>
-                            <RowDefinition Height="2*"/>
-                            <RowDefinition Height="2*"/>
-                            <RowDefinition Height="1*"/>
-                        </Grid.RowDefinitions>
-
-                        <Button Grid.Row="1" Margin="30,100,30,0" Height="30" Content="Add" Click="AddCard"></Button>
-                        <Button Visibility="Hidden" Grid.Row="1" Margin="30,100,30,0" Height="30" Content="Remove" Click="RemoveCard"></Button>
-                    </Grid>
-                </local:CardControl>
-            </StackPanel>
-        </ScrollViewer>
-    </Grid>-->
 </Page>

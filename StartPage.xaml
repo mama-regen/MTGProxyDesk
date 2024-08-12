@@ -6,7 +6,8 @@
       xmlns:local="clr-namespace:MTGProxyDesk"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="StartPage">
+      Title="StartPage"
+>
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -44,13 +45,164 @@
                         <SolidColorBrush Color="#4f4f4f"/>
                     </Grid.Background>
                     <Label Content="MTG Proxy Desk" Grid.Row="0" Grid.ColumnSpan="4" HorizontalAlignment="Center" Margin="40,0,40,0" VerticalAlignment="Center" FontFamily="Bahnschrift Condensed" FontSize="24"/>
-                    <TextBox Name="DeckName" Grid.Row="2" MinWidth="100" Grid.Column="1" IsEnabled="False"></TextBox>
-                    <Button Grid.Row="2" Grid.Column="2" HorizontalAlignment="Stretch" Content="Browse" Click="BrowseDeck"></Button>
+                    <TextBox 
+                        Name="DeckName" 
+                        Grid.Row="2" 
+                        Grid.Column="1" 
+                        MinWidth="100" 
+                        IsEnabled="False" 
+                        Text="{Binding Path=FileName, UpdateSourceTrigger=PropertyChanged}"
+                        BorderBrush="Black"
+                        BorderThickness="1,1,0,0"
+                    >
+                        <TextBox.Background>
+                            <SolidColorBrush Color="White"/>
+                        </TextBox.Background>
+                    </TextBox>
+                    <Button 
+                        Grid.Row="2" 
+                        Grid.Column="2" 
+                        HorizontalAlignment="Stretch" 
+                        Content="Browse" 
+                        Click="BrowseDeck"
+                        BorderBrush="Black"
+                        BorderThickness="1,1,1,0"
+                    >
+                        <Button.Background>
+                            <SolidColorBrush Color="#4f4f4f"/>
+                        </Button.Background>
+                        <Button.Foreground>
+                            <SolidColorBrush Color="#dfdfdf"/>
+                        </Button.Foreground>
+                    </Button>
 
-                    <Button Name="NewDeckButton" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Content="New Deck" Click="EditDeck" HorizontalAlignment="Stretch"/>
-                    <Button Name="EditDeckButton" IsEnabled="False" Visibility="Hidden" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1" Content="Edit Deck" Click="EditDeck" HorizontalAlignment="Stretch"/>
-                    <Button Name="PlayButton" IsEnabled="False" Visibility="Hidden" Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="1" Content="Play" Click="BeginPlay" HorizontalAlignment="Stretch"/>
-                    <ProgressBar Grid.Column="1" Grid.ColumnSpan="2" Margin="0,20,0,20" HorizontalAlignment="Stretch" Height="15" Grid.Row="5" VerticalAlignment="Top"/>
+
+                    <Grid
+                        Grid.Row="3"
+                        Grid.Column="1"
+                        Grid.ColumnSpan="2"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Name="NoDeckLoaded"
+                    >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+
+                        <Button
+                            Content="New Deck" 
+                            Click="NewDeck" 
+                            HorizontalAlignment="Stretch"
+                            BorderBrush="Black"
+                        >
+                            <Button.Background>
+                                <SolidColorBrush Color="#4f4f4f"/>
+                            </Button.Background>
+                            <Button.Foreground>
+                                <SolidColorBrush Color="#dfdfdf"/>
+                            </Button.Foreground>
+                        </Button>
+                    </Grid>
+
+                    <Grid
+                        Grid.Row="3"
+                        Grid.Column="1"
+                        Grid.ColumnSpan="2"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Name="DeckLoaded"
+                        IsEnabled="False"
+                        Visibility="Collapsed"
+                    >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                        </Grid.RowDefinitions>
+
+                        <Button
+                            Grid.Column="0" 
+                            Content="New Deck" 
+                            Click="NewDeck" 
+                            HorizontalAlignment="Stretch"
+                            BorderBrush="Black"
+                            BorderThickness="1,1,0,1"
+                        >
+                            <Button.Background>
+                                <SolidColorBrush Color="#4f4f4f"/>
+                            </Button.Background>
+                            <Button.Foreground>
+                                <SolidColorBrush Color="#dfdfdf"/>
+                            </Button.Foreground>
+                        </Button>
+                        <Button
+                            Grid.Column="1" 
+                            Content="Edit Deck" 
+                            Click="EditDeck" 
+                            HorizontalAlignment="Stretch"
+                            BorderBrush="Black"
+                        >
+                            <Button.Background>
+                                <SolidColorBrush Color="#4f4f4f"/>
+                            </Button.Background>
+                            <Button.Foreground>
+                                <SolidColorBrush Color="#dfdfdf"/>
+                            </Button.Foreground>
+                        </Button>
+                        <Button
+                            Grid.Column="2" 
+                            Content="Play" 
+                            Click="BeginPlay" 
+                            HorizontalAlignment="Stretch"
+                            BorderBrush="Black"
+                            BorderThickness="0,1,1,1"
+                        >
+                            <Button.Background>
+                                <SolidColorBrush Color="#4f4f4f"/>
+                            </Button.Background>
+                            <Button.Foreground>
+                                <SolidColorBrush Color="#dfdfdf"/>
+                            </Button.Foreground>
+                        </Button>
+                    </Grid>
+
+                    <ProgressBar
+                        Name="LoadProgress"
+                        Grid.Row="5" 
+                        Grid.Column="1" 
+                        Grid.ColumnSpan="2" 
+                        Margin="0,20,0,20" 
+                        Height="15" 
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Top"
+                        Minimum="0"
+                        Maximum="100"
+                        Value="100"
+                        RenderTransformOrigin="0.5, 0.5"
+                        BorderThickness="0"
+                    >
+                        <ProgressBar.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="Green" Offset="0"/>
+                                <GradientStop Color="Red" Offset="0.25"/>
+                                <GradientStop Color="Black" Offset="0.5"/>
+                                <GradientStop Color="Blue" Offset="0.75"/>
+                                <GradientStop Color="White" Offset="1"/>
+                            </LinearGradientBrush>
+                        </ProgressBar.Background>
+                        <ProgressBar.Foreground>
+                            <SolidColorBrush Color="Gray"/>
+                        </ProgressBar.Foreground>
+                        <ProgressBar.RenderTransform>
+                            <RotateTransform Angle="180"/>
+                        </ProgressBar.RenderTransform>
+                    </ProgressBar>
                 </Grid>
             </Border>
         </Viewbox>
