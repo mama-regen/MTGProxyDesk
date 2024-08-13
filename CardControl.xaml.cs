@@ -13,6 +13,18 @@ namespace MTGProxyDesk
     {
         private BitmapImage? defaultImage = null;
 
+        private SolidColorBrush _bg1 = Constants.Colors["Background1"].AsBrush();
+        public SolidColorBrush BG1 { get => _bg1; }
+
+        private SolidColorBrush _bg2 = Constants.Colors["Background2"].AsBrush();
+        public SolidColorBrush BG2 { get => _bg2; }
+
+        private SolidColorBrush _fg1 = Constants.Colors["Foreground1"].AsBrush();
+        public SolidColorBrush FG1 { get => _fg1; }
+
+        private SolidColorBrush _fg2 = Constants.Colors["Foreground2"].AsBrush();
+        public SolidColorBrush FG2 { get => _fg2; }
+
         private Card? _Card;
         public Card? Card
         {

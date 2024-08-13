@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MTGProxyDesk"
         mc:Ignorable="d"
-        Title="CardSearch" Height="675" Width="1200">
-    <Grid>
+        Title="CardSearch" Height="675" Width="1200"
+ >
+    <Grid Background="{Binding Path=BG1}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*" />
             <ColumnDefinition Width="4*" />
@@ -19,9 +20,7 @@
             <RowDefinition Height="1*" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
-        <Grid.Background>
-            <SolidColorBrush Color="#4f4f4f"/>
-        </Grid.Background>
+        
         <Viewbox Grid.Column="1" Grid.Row="1" Stretch="Uniform">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -37,10 +36,17 @@
             </Grid>
         </Viewbox>
         <Viewbox Name="SearchText" Visibility="Hidden" Grid.Column="1" Grid.Row="1" Stretch="Uniform">
-            <Label Content="SEARCHING..."/>
+            <Label Content="SEARCHING..." Foreground="{Binding Path=FG1}"/>
         </Viewbox>
         <Viewbox Grid.Column="1" Grid.Row="2">
-            <TextBox Width="200" Height="24" Name="CardSearchText" HorizontalAlignment="Stretch" />
+            <TextBox 
+                Width="200" 
+                Height="24" 
+                Name="CardSearchText" 
+                HorizontalAlignment="Stretch" 
+                BorderBrush="Black"
+                Background="{Binding Path=FG2}"
+            />
         </Viewbox>
         <Viewbox Grid.Column="1" Grid.Row="3">
             <Grid>
@@ -51,10 +57,67 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                
-                <Button Name="InitialSearch" Grid.Column="0" Grid.ColumnSpan="2" Width="200" Height="24" Content="Search" Click="SearchForCard" HorizontalAlignment="Stretch"/>
-                <Button Name="SearchAgain" Visibility="Hidden" Grid.Column="0" Width="100" Height="24" Content="Search"  Click="SearchForCard" HorizontalAlignment="Stretch"/>
-                <Button Name="Add" Visibility="Hidden" Grid.Column="1" Width="100" Height="24" Content="Select" Click="SelectCard" HorizontalAlignment="Stretch"/>
+
+                <Button 
+                    Name="InitialSearch" 
+                    Grid.Column="0" 
+                    Grid.ColumnSpan="2" 
+                    Width="200" 
+                    Height="24" 
+                    Content="Search" 
+                    Click="SearchForCard" 
+                    HorizontalAlignment="Stretch"
+                    Background="{Binding Path=BG2}"
+                    Foreground="{Binding Path=FG2}"
+                    BorderBrush="Black"
+                    BorderThickness="1,0,1,1"
+                >
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="0,0,2,2"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+                <Button 
+                    Name="SearchAgain" 
+                    Visibility="Hidden" 
+                    Grid.Column="0" 
+                    Width="100" 
+                    Height="24" 
+                    Content="Search"  
+                    Click="SearchForCard" 
+                    HorizontalAlignment="Stretch"
+                    BorderBrush="Black"
+                    BorderThickness="1,0,1,1"
+                    Background="{Binding Path=BG2}"
+                    Foreground="{Binding Path=FG2}"
+                >
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="0,0,0,2"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+                <Button 
+                    Name="Add" 
+                    Visibility="Hidden" 
+                    Grid.Column="1" 
+                    Width="100" 
+                    Height="24" 
+                    Content="Select" 
+                    Click="SelectCard" 
+                    HorizontalAlignment="Stretch"
+                    BorderBrush="Black"
+                    BorderThickness="0,0,1,1"
+                    Background="{Binding Path=BG2}"
+                    Foreground="{Binding Path=FG2}"
+                >
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="0,0,2,0"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
             </Grid>
         </Viewbox>
     </Grid>

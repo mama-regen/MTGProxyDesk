@@ -51,13 +51,12 @@
                 >
                     <Grid>
                         <Image
-                        Source="{
+                            Source="{
                                 Binding Path=CardImage, 
                                 IsAsync=True,
                                 UpdateSourceTrigger=PropertyChanged
                             }"
-                        >
-                        </Image>
+                        />
                     </Grid>
                 </Button>
                 <StackPanel Visibility="Hidden" MouseEnter="ShowMenu" Name="ChildContainer" VerticalAlignment="Center"/>

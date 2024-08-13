@@ -49,10 +49,12 @@ namespace MTGProxyDesk
             {
                 try
                 {
-                    int newValue = int.Parse(value);
-                    _Value = Math.Max(Min, Math.Min(Max, newValue));
-                    this.OnPropertyChanged("Value");
-                    this.OnChange(_Value, this);
+                    int newValue = Math.Max(Min, Math.Min(Max, int.Parse(value)));
+                    if (newValue != _Value) {
+                        _Value = newValue;
+                        this.OnPropertyChanged("Value");
+                        this.OnChange(_Value, this);
+                    }
                 } catch { }
             }
         }

@@ -150,5 +150,49 @@ namespace MTGProxyDesk
                 }
             }
         }
+
+        public static Func<T, Task> Debounce<T>(this Func<T, Task> func, int milliseconds = 300)
+        {
+            CancellationTokenSource? cts = null;
+
+            return (arg) =>
+            {
+                cts?.Cancel();
+                cts = new CancellationTokenSource(milliseconds);
+
+                return Task.Delay(milliseconds, cts.Token)
+                .ContinueWith(task =>
+                {
+                    if (task.IsCompletedSuccessfully) func(arg);
+                }, TaskScheduler.Default);
+            };
+        }
+
+        public static Action<T, U> Debounce<T, U>(this Action<T, U> func, int milliseconds = 300)
+        {
+            CancellationTokenSource? cts = null;
+
+            return (argA, argB) =>
+            {
+                cts?.Cancel();
+                cts = new CancellationTokenSource(milliseconds);
+
+                Task.Delay(milliseconds, cts.Token)
+                .ContinueWith(task =>
+                {
+                    if (task.IsCompletedSuccessfully) func(argA, argB);
+                }, TaskScheduler.Default);
+            };
+        }
+
+        public static SolidColorBrush AsBrush(this string color)
+        {
+            return (SolidColorBrush)new BrushConverter().ConvertFrom(color)!;
+        }
+
+        public static Color AsColor(this string color)
+        {
+            return (Color)ColorConverter.ConvertFromString(color);
+        }
     }
 }

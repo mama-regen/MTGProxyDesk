@@ -8,7 +8,6 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="StartPage"
 >
-
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*" />
@@ -21,12 +20,18 @@
             <RowDefinition Height="2*" />
         </Grid.RowDefinitions>
         <Grid.Background>
-            <SolidColorBrush Color="#3f3f3f"/>
+            <ImageBrush
+                ImageSource="{
+                    Binding Path=BackgroundImage, 
+                    IsAsync=True,
+                    UpdateSourceTrigger=PropertyChanged
+                }"
+            />
         </Grid.Background>
 
         <Viewbox Grid.Column="1" Grid.Row="1">
-            <Border BorderBrush="Black" BorderThickness="1">
-                <Grid>
+            <Border BorderBrush="Black" BorderThickness="1" CornerRadius="5">
+                <Grid Background="{Binding Path=BG1}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*" />
                         <ColumnDefinition Width="4*" />
@@ -41,10 +46,18 @@
                         <RowDefinition Height="1*" />
                         <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
-                    <Grid.Background>
-                        <SolidColorBrush Color="#4f4f4f"/>
-                    </Grid.Background>
-                    <Label Content="MTG Proxy Desk" Grid.Row="0" Grid.ColumnSpan="4" HorizontalAlignment="Center" Margin="40,0,40,0" VerticalAlignment="Center" FontFamily="Bahnschrift Condensed" FontSize="24"/>
+
+                    <Label 
+                        Content="MTG Proxy Desk" 
+                        Grid.Row="0" 
+                        Grid.ColumnSpan="4" 
+                        HorizontalAlignment="Center" 
+                        Margin="40,0,40,0" 
+                        VerticalAlignment="Center" 
+                        FontFamily="Bahnschrift Condensed" 
+                        FontSize="24"
+                        Foreground="{Binding Path=FG1}"
+                    />
                     <TextBox 
                         Name="DeckName" 
                         Grid.Row="2" 
@@ -54,11 +67,8 @@
                         Text="{Binding Path=FileName, UpdateSourceTrigger=PropertyChanged}"
                         BorderBrush="Black"
                         BorderThickness="1,1,0,0"
-                    >
-                        <TextBox.Background>
-                            <SolidColorBrush Color="White"/>
-                        </TextBox.Background>
-                    </TextBox>
+                        Background="White"
+                    />
                     <Button 
                         Grid.Row="2" 
                         Grid.Column="2" 
@@ -67,15 +77,15 @@
                         Click="BrowseDeck"
                         BorderBrush="Black"
                         BorderThickness="1,1,1,0"
+                        Background="{Binding Path=BG2}"
+                        Foreground="{Binding Path=FG2}"
                     >
-                        <Button.Background>
-                            <SolidColorBrush Color="#4f4f4f"/>
-                        </Button.Background>
-                        <Button.Foreground>
-                            <SolidColorBrush Color="#dfdfdf"/>
-                        </Button.Foreground>
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="0,2,0,0"/>
+                            </Style>
+                        </Button.Resources>
                     </Button>
-
 
                     <Grid
                         Grid.Row="3"
@@ -97,13 +107,14 @@
                             Click="NewDeck" 
                             HorizontalAlignment="Stretch"
                             BorderBrush="Black"
+                            Background="{Binding Path=BG2}"
+                            Foreground="{Binding Path=FG2}"
                         >
-                            <Button.Background>
-                                <SolidColorBrush Color="#4f4f4f"/>
-                            </Button.Background>
-                            <Button.Foreground>
-                                <SolidColorBrush Color="#dfdfdf"/>
-                            </Button.Foreground>
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="0,0,2,2"/>
+                                </Style>
+                            </Button.Resources>
                         </Button>
                     </Grid>
 
@@ -133,13 +144,14 @@
                             HorizontalAlignment="Stretch"
                             BorderBrush="Black"
                             BorderThickness="1,1,0,1"
+                            Background="{Binding Path=BG2}"
+                            Foreground="{Binding Path=FG2}"
                         >
-                            <Button.Background>
-                                <SolidColorBrush Color="#4f4f4f"/>
-                            </Button.Background>
-                            <Button.Foreground>
-                                <SolidColorBrush Color="#dfdfdf"/>
-                            </Button.Foreground>
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="0,0,0,2"/>
+                                </Style>
+                            </Button.Resources>
                         </Button>
                         <Button
                             Grid.Column="1" 
@@ -147,14 +159,9 @@
                             Click="EditDeck" 
                             HorizontalAlignment="Stretch"
                             BorderBrush="Black"
-                        >
-                            <Button.Background>
-                                <SolidColorBrush Color="#4f4f4f"/>
-                            </Button.Background>
-                            <Button.Foreground>
-                                <SolidColorBrush Color="#dfdfdf"/>
-                            </Button.Foreground>
-                        </Button>
+                            Background="{Binding Path=BG2}"
+                            Foreground="{Binding Path=FG2}"
+                        />
                         <Button
                             Grid.Column="2" 
                             Content="Play" 
@@ -162,13 +169,14 @@
                             HorizontalAlignment="Stretch"
                             BorderBrush="Black"
                             BorderThickness="0,1,1,1"
+                            Background="{Binding Path=BG2}"
+                            Foreground="{Binding Path=FG2}"
                         >
-                            <Button.Background>
-                                <SolidColorBrush Color="#4f4f4f"/>
-                            </Button.Background>
-                            <Button.Foreground>
-                                <SolidColorBrush Color="#dfdfdf"/>
-                            </Button.Foreground>
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="0,0,2,0"/>
+                                </Style>
+                            </Button.Resources>
                         </Button>
                     </Grid>
 
@@ -186,25 +194,37 @@
                         Value="100"
                         RenderTransformOrigin="0.5, 0.5"
                         BorderThickness="0"
+                        Foreground="{Binding Path=BG2}"
+                        Background="{Binding Path=LoaderGradient}"
                     >
-                        <ProgressBar.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                <GradientStop Color="Green" Offset="0"/>
-                                <GradientStop Color="Red" Offset="0.25"/>
-                                <GradientStop Color="Black" Offset="0.5"/>
-                                <GradientStop Color="Blue" Offset="0.75"/>
-                                <GradientStop Color="White" Offset="1"/>
-                            </LinearGradientBrush>
-                        </ProgressBar.Background>
-                        <ProgressBar.Foreground>
-                            <SolidColorBrush Color="Gray"/>
-                        </ProgressBar.Foreground>
                         <ProgressBar.RenderTransform>
                             <RotateTransform Angle="180"/>
                         </ProgressBar.RenderTransform>
+                        <ProgressBar.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="2"/>
+                            </Style>
+                        </ProgressBar.Resources>
                     </ProgressBar>
                 </Grid>
             </Border>
         </Viewbox>
+
+        <Label 
+            Name="ArtistCredit" 
+            Grid.Row="3" 
+            Grid.Column="2" 
+            HorizontalAlignment="Right" 
+            VerticalAlignment="Bottom" 
+            Margin="10,5" 
+            FontSize="18" 
+            FontFamily="Bahnschrift Condensed"
+            Foreground="{Binding Path=FG1}"
+        >
+            <Label.Effect>
+                <DropShadowEffect ShadowDepth="1" BlurRadius="5" Color="#000000" />
+            </Label.Effect>
+        </Label>
     </Grid>
 </Page>
+

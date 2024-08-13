@@ -1,6 +1,7 @@
 ﻿using MtgApiManager.Lib.Model;
 using Newtonsoft.Json;
 using System.IO;
+using System.IO.Enumeration;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Windows.Media.Imaging;
@@ -164,6 +165,18 @@ namespace MTGProxyDesk
             }
         }
 
+        private class _CardSearch
+        {
+            public string Object { get; set; } = "";
+            public int Total_Cards { get; set; } = 0;
+            public bool Has_More { get; set; } = false;
+            public _Card[] Data { get; set; }
+
+            public _CardSearch() {
+                Data = new _Card[0];
+            }
+        }
+
         public string Id { get; private set; }
         public BitmapImage Image { get; private set; }
         public bool AllowAnyAmount { get; private set; } = false;
@@ -196,9 +209,25 @@ namespace MTGProxyDesk
 
         public static async Task<Card?> SearchCard(string name)
         {
-            string? response = await MakeRequest("named?fuzzy=" + name.Replace(" ", "+"));
+            string? response = await MakeRequest("named?include_extras=false&fuzzy=" + name.Replace(" ", "+"));
             if (response == null) return null;
             return new Card(JsonConvert.DeserializeObject<_Card>(response));
+        }
+
+        public static async Task<Card?> SearchToken(string name)
+        {
+            string? response = await MakeRequest("search?include_extras=true&q=t%3Atoken%20" + name.Replace(" ", "+"));
+            if (response == null) return null;
+            IEnumerable<_Card> filtered = JsonConvert.DeserializeObject<_CardSearch>(response).Data.Where(c => c.Name.ToLower() == name.ToLower());
+            if (filtered.Count() == 0) return null;
+            return new Card(filtered.First());
+        }
+
+        public static async Task<Card[]> SearchTokens(string name)
+        {
+            string? response = await MakeRequest("search?include_extras=true&q=t%3Atoken%20" + name.Replace(" ", "+"));
+            if (response == null) return new Card[0];
+            return JsonConvert.DeserializeObject<_CardSearch>(response).Data.Select(c => new Card(c)).ToArray();
         }
 
         public static async Task<Card?> GetCard(string id)
@@ -208,23 +237,58 @@ namespace MTGProxyDesk
             return new Card(JsonConvert.DeserializeObject<_Card>(response));
         }
 
+        public static async Task<(BitmapImage, string)?> GetRandomArt(string fileName = "temp") { return await GetRandomArt(fileName,5); }
+        private static async Task<(BitmapImage, string)?> GetRandomArt(string fileName, int attempts)
+        {
+            string? response = await MakeRequest("search?q=new%3Aart&format=image&version=art_crop");
+            if (response == null)
+            {
+                if (attempts == 0) return null;
+                return await GetRandomArt(fileName, attempts - 1);
+            }
+            Random rand = new Random();
+            _Card[] data = JsonConvert.DeserializeObject<_CardSearch>(response).Data;
+
+            Func<_Card?> pick = () =>
+            {
+                _Card select = data.ElementAt(rand.Next(0, data.Length - 1));
+                if (select.Image_Uris != null && select.Image_Uris.Art_Crop != null) return select;
+                return null;
+            };
+
+            _Card? chosen = null;
+            while (chosen == null) chosen = pick();
+            return (
+                Helper.DownloadImage(new Uri(chosen.Image_Uris!.Art_Crop!), Path.Join(Path.GetTempPath(), "mtg_prox_desk", fileName + ".png")),
+                chosen.Artist
+            );
+        }
+
         private static async Task<string?> MakeRequest(string query)
         {
             const string URL = "https://api.scryfall.com/";
 
-            HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri(URL);
-            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("MTGProxyDesk/0.2");
+            string? response = null;
+            Func<string, Task> func = async (_query) =>
+            {
+                HttpClient client = new HttpClient();
+                client.BaseAddress = new Uri(URL);
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(Constants.UserAgent);
 
-            string q = (string.IsNullOrWhiteSpace(query) || query.Trim()[0] == '?' ? "?" : "&");
-            q += "version=png&format=json";
+                string q = (string.IsNullOrWhiteSpace(_query) || _query.Trim()[0] == '?' ? "?" : "&");
+                if (!_query.Contains("format")) q += "version=png&format=json";
 
-            string searchQuery = "cards/" + query + q;
+                string searchQuery = "cards/" + _query + q;
 
-            HttpResponseMessage response = client.GetAsync(searchQuery).Result;
-            if (response.IsSuccessStatusCode ) { return await response.Content.ReadAsStringAsync(); }
-            return null;
+                HttpResponseMessage _response = client.GetAsync(searchQuery).Result;
+                if (_response.IsSuccessStatusCode) response = await _response.Content.ReadAsStringAsync();
+            };
+
+            var wrapper = func.Debounce(750);
+            await wrapper(query);
+
+            return response;
         }
     }
 }

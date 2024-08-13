@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32;
-using System.Security.Cryptography;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -9,6 +8,18 @@ namespace MTGProxyDesk
     public partial class NewDeckPage : Page
     {
         private MagicDeck _Deck;
+
+        private SolidColorBrush _bg1 = Constants.Colors["Background1"].AsBrush();
+        public SolidColorBrush BG1 { get => _bg1; }
+
+        private SolidColorBrush _bg2 = Constants.Colors["Background2"].AsBrush();
+        public SolidColorBrush BG2 { get => _bg2; }
+
+        private SolidColorBrush _fg1 = Constants.Colors["Foreground1"].AsBrush();
+        public SolidColorBrush FG1 { get => _fg1; }
+
+        private SolidColorBrush _fg2 = Constants.Colors["Foreground2"].AsBrush();
+        public SolidColorBrush FG2 { get => _fg2; }
 
         public NewDeckPage()
         {
@@ -34,13 +45,18 @@ namespace MTGProxyDesk
                 rmvBtn.IsEnabled = true;
                 rmvBtn.Visibility = Visibility.Visible;
 
-                foreach (CardControl cardCtrl in this.GetChildOfType<ScrollViewer>()!.GetChildrenOfType<CardControl>())
+                ShowHideAddCard(GetCardTotal() < 100);
+
+                foreach (Grid row in DeckContainer.Children.OfType<Grid>())
                 {
-                    if (cardCtrl.Card == null || cardCtrl.Card.AllowAnyAmount) return;
-                    NumberPicker countCtrl = cardCtrl.Children.OfType<NumberPicker>().First();
-                    countCtrl.Value = "1";
-                    countCtrl.IsEnabled = false;
-                    countCtrl.Visibility = Visibility.Collapsed;
+                    foreach (CardControl ctrl in row.Children.OfType<CardControl>())
+                    {
+                        if (ctrl.Card == null || ctrl.Card.AllowAnyAmount) continue;
+                        NumberPicker counter = ctrl.Children.OfType<NumberPicker>().First();
+                        counter.Value = "1";
+                        counter.IsEnabled = false;
+                        counter.Visibility = Visibility.Collapsed;
+                    }
                 }
             }
         }
@@ -65,6 +81,8 @@ namespace MTGProxyDesk
                 nmbPck.IsEnabled = true;
                 nmbPck.Visibility = Visibility.Visible;
             }
+
+            ShowHideAddCard(true);
         }
 
         public async void AddCard(object sender, RoutedEventArgs e)
@@ -121,11 +139,7 @@ namespace MTGProxyDesk
             Grid.SetColumn(newCardCtrl, cardCount);
             newContainer.Children.Add(newCardCtrl);
 
-            if (Commander != null && GetCardTotal() >= 100)
-            {
-                newCardCtrl.IsEnabled = false;
-                newCardCtrl.Visibility = Visibility.Collapsed;
-            }
+            ShowHideAddCard(Commander == null || GetCardTotal() < 100);
         }
 
         public void RemoveCard(object sender, RoutedEventArgs e)
@@ -160,23 +174,10 @@ namespace MTGProxyDesk
                 lastIdx--;
             }
 
-            CardControl lastCard = ctrls.Where(c => c.Card == null).First();
-            lastCard.IsEnabled = true;
-            lastCard.Visibility = Visibility.Visible;
-            Button[] lastButtons = lastCard.Children.OfType<Button>().ToArray();
-            Button lastAdd = lastButtons.Where(b => b.Content.ToString() == "Add").First();
-            Button lastRmv = lastButtons.Where(b => b.Content.ToString() == "Remove").First();
-            lastAdd.IsEnabled = true;
-            lastAdd.Visibility = Visibility.Visible;
-            lastRmv.IsEnabled = false;
-            lastRmv.Visibility = Visibility.Collapsed;
-            Grid? lastCardParent = lastCard.GetAncestorOfType<Grid>();
-            if (lastCardParent != null) lastCardParent.Children.Remove(lastCard);
-            Grid.SetColumn(lastCard, rows.ElementAt(lastIdx).Children.Count - 1);
-            rows.ElementAt(lastIdx).Children.Add(lastCard);
+            ShowHideAddCard(true);
         }
 
-        public void UpdateCardCount(int value, object sender)
+        public async void UpdateCardCount(int value, object sender)
         {
             CardControl parent = ((DependencyObject)sender).GetAncestorOfType<CardControl>()!;
             Card? card = parent.Card;
@@ -184,6 +185,8 @@ namespace MTGProxyDesk
             int cardTotal = GetCardTotal() - card.Count - 1;
             card.Count = Commander.Card == null ? value : Math.Min(value, 100 - cardTotal);
             if (card.Count != value) ((NumberPicker)sender).Value = card.Count.ToString();
+
+            ShowHideAddCard(GetCardTotal() - 1 < 100);
         }
 
         public void SaveDeck(object sender, RoutedEventArgs e)
@@ -194,6 +197,28 @@ namespace MTGProxyDesk
         public void GoBack(object sender, RoutedEventArgs e)
         {
             GoBack();
+        }
+
+        private void ShowHideAddCard(bool show)
+        {
+            Grid lastGrid = DeckContainer.Children.OfType<Grid>().Last();
+            if (show)
+            {
+                if (lastGrid.Children.OfType<CardControl>().Where(c => c.Card == null).Count() > 0) return;
+                CardControl addCard = NewCardControl();
+                if (lastGrid.Children.OfType<CardControl>().Count() >= 7)
+                {
+                    lastGrid = NewGridRow();
+                }
+                int col = lastGrid.Children.OfType<CardControl>().Count();
+                Grid.SetColumn(addCard, col);
+                lastGrid.Children.Add(addCard);
+                return;
+            }
+
+            CardControl[] rmvCards = lastGrid.Children.OfType<CardControl>().Where(c => c.Card == null).ToArray();
+            if (rmvCards.Count() != 0) foreach (CardControl ctrl in rmvCards) lastGrid.Children.Remove(ctrl);
+            if (lastGrid.Children.OfType<CardControl>().Count() == 0) DeckContainer.Children.Remove(lastGrid);
         }
 
         private CardControl NewCardControl()
@@ -230,8 +255,8 @@ namespace MTGProxyDesk
                 btn.BorderThickness = new Thickness(0);
                 btn.Margin = new Thickness(30, 10, 30, 0);
                 btn.Height = 30;
-                btn.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#4f4f4f")!;
-                btn.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#dfdfdf")!;
+                btn.Background = BG2;
+                btn.Foreground = FG2;
                 btn.Content = label;
                 btn.Click += func;
                 if (hidden) btn.Visibility = Visibility.Collapsed;
@@ -339,25 +364,19 @@ namespace MTGProxyDesk
                 col = (col + 1) % 7;
             }
 
-            CardControl finalCard = NewCardControl();
-            Grid.SetColumn(finalCard, col);
-            gridRows[row].Children.Add(finalCard);
-
-            if (Commander != null && cardTotal >= 100)
-            {
-                finalCard.IsEnabled = false;
-                finalCard.Visibility = Visibility.Collapsed;
-            }
+            ShowHideAddCard(Commander == null || cardTotal < 100);
         }
 
         private int GetCardTotal()
         {
-            int total = 0;
-            foreach (CardControl cardCtrl in this.GetChildrenOfType<CardControl>()!)
+            int total = Commander.Card == null ? 0 : 1;
+            foreach (Grid row in DeckContainer.Children.OfType<Grid>())
             {
-                if (cardCtrl.Card == null) continue;
-                NumberPicker? counter = cardCtrl.Children.OfType<NumberPicker>().FirstOrDefault();
-                total += counter == null ? 1 : int.Parse(counter.Value);
+                foreach (CardControl card in row.Children.OfType<CardControl>())
+                {
+                    if (card.Card == null) continue;
+                    total += Math.Max(card.Count, 1);
+                }
             }
             return total;
         }
