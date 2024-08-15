@@ -1,11 +1,9 @@
-﻿using MtgApiManager.Lib.Model;
+﻿using MTGProxyDesk.Constants;
+using MTGProxyDesk.Extensions;
 using Newtonsoft.Json;
 using System.IO;
-using System.IO.Enumeration;
 using System.Net.Http;
-using System.Runtime.CompilerServices;
 using System.Windows.Media.Imaging;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace MTGProxyDesk
 {
@@ -274,7 +272,7 @@ namespace MTGProxyDesk
                 HttpClient client = new HttpClient();
                 client.BaseAddress = new Uri(URL);
                 client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-                client.DefaultRequestHeaders.UserAgent.ParseAdd(Constants.UserAgent);
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(BuildInfo.UserAgent);
 
                 string q = (string.IsNullOrWhiteSpace(_query) || _query.Trim()[0] == '?' ? "?" : "&");
                 if (!_query.Contains("format")) q += "version=png&format=json";

@@ -8,6 +8,6 @@
         Title="MTG Proxy Desk" Height="450" Width="800"
 >
     <Grid>
-        <Frame Name="MainFrame" Source="StartPage.xaml" NavigationUIVisibility="Hidden"></Frame>
+        <Frame Name="MainFrame" Source="../Pages/StartPage.xaml" NavigationUIVisibility="Hidden"></Frame>
     </Grid>
 </Window>

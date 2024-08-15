@@ -1,0 +1,56 @@
+﻿<ctrls:MPDControl
+    x:Class="MTGProxyDesk.Controls.NumberPicker"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:ctrls="clr-namespace:MTGProxyDesk.Controls"
+    mc:Ignorable="d" 
+    d:DesignHeight="50" d:DesignWidth="160"
+>
+    <Grid Visibility="{Binding CtrlVisibility, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition Width="60"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+
+        <Label
+            Content="{Binding Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+            Grid.Column="0" 
+            FontSize="40" 
+            HorizontalContentAlignment="Right" 
+            HorizontalAlignment="Right"
+            Width="100" 
+            Height="50" 
+            Margin="0"
+            Padding="5,-5,5,0"
+            VerticalAlignment="Stretch"
+            Background="White"
+            FontFamily="{DynamicResource AppFont}" 
+        />
+        <Grid Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="60"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+
+            <ctrls:MPDButton
+                Grid.Row="0"
+                TextContent="🢁"
+                Click="Add"
+            />
+
+            <ctrls:MPDButton
+                Grid.Row="1"
+                TextContent="🢃"
+                Click="Subtract"
+            />
+        </Grid>
+    </Grid>
+</ctrls:MPDControl>

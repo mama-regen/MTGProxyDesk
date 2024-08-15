@@ -5,25 +5,15 @@ using System.Windows.Controls;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using MTGProxyDesk.Extensions;
+using MTGProxyDesk.Constants;
 
-namespace MTGProxyDesk
+namespace MTGProxyDesk.Controls
 {
     [ContentProperty(nameof(Children))]
-    public partial class CardControl : UserControl, INotifyPropertyChanged
+    public partial class CardControl : MPDControl, INotifyPropertyChanged
     {
         private BitmapImage? defaultImage = null;
-
-        private SolidColorBrush _bg1 = Constants.Colors["Background1"].AsBrush();
-        public SolidColorBrush BG1 { get => _bg1; }
-
-        private SolidColorBrush _bg2 = Constants.Colors["Background2"].AsBrush();
-        public SolidColorBrush BG2 { get => _bg2; }
-
-        private SolidColorBrush _fg1 = Constants.Colors["Foreground1"].AsBrush();
-        public SolidColorBrush FG1 { get => _fg1; }
-
-        private SolidColorBrush _fg2 = Constants.Colors["Foreground2"].AsBrush();
-        public SolidColorBrush FG2 { get => _fg2; }
 
         private Card? _Card;
         public Card? Card
@@ -39,7 +29,7 @@ namespace MTGProxyDesk
                 else
                 {
                     _Card = value;
-                    this.OnPropertyChanged("Card");
+                    OnPropertyChanged("Card");
                     CardImage = _Card.Image;
                 }
             }
@@ -67,34 +57,45 @@ namespace MTGProxyDesk
             private set { SetValue(ChildrenProperty, value); }
         }
 
-        private StackPanel? _Menu
-        {
-            get { return this.GetChildOfType<StackPanel>(); }
-        }
-
         public Brush HoverColor
         {
-            get { return _Menu == null || _Menu.GetChildOfType<Button>() == null ? Brushes.Transparent : Brushes.White; }
+            get { return Menu == null || Menu.GetChildOfType<MPDButton>() == null ? Brushes.Transparent : (LinearGradientBrush)FindResource("WUBRG_MTG_Diag"); }
         }
 
         private BitmapSource? _CardImage;
         public BitmapSource? CardImage
         {
-            get { return this._CardImage; }
+            get { return _CardImage; }
             set
             {
-                this._CardImage = value;
-                this.OnPropertyChanged("CardImage");
+                _CardImage = value;
+                OnPropertyChanged("CardImage");
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged = delegate { };
+        private Visibility _visibility;
+        public override Visibility CtrlVisibility
+        {
+            get => _visibility;
+            set
+            {
+                if (_visibility != value)
+                {
+                    _visibility = value;
+                    Visibility = value;
+                    OnPropertyChanged("CtrlVisibility");
+                    OnPropertyChanged("Visibility");
+                }
+            }
+        }
+
+        public virtual event PropertyChangedEventHandler? PropertyChanged = delegate { };
 
         public CardControl()
         {
             InitializeComponent();
-            this.DataContext = this;
-            Children = ChildContainer.Children;
+            DataContext = this;
+            Children = Menu.Children;
             SetToDefaultImage();
             HideMenu();
         }
@@ -106,23 +107,7 @@ namespace MTGProxyDesk
 
         public void ShowMenu() 
         {
-            if (_Menu != null) { 
-                _Menu.Visibility = Visibility.Visible;
-                DependencyObject[] children = _Menu.GetChildrenOfType<DependencyObject>();
-                foreach (DependencyObject child in children)
-                {
-                    var visibleProp = child.GetType().GetProperty("Visibility");
-                    if (visibleProp == null) continue;
-                    var activeProp = child.GetType().GetProperty("IsEnabled");
-                    if (activeProp != null)
-                    {
-                        visibleProp.SetValue(child, (bool)activeProp.GetValue(child)! ? Visibility.Visible : Visibility.Hidden);
-                    } else
-                    {
-                        visibleProp.SetValue(child, Visibility.Visible);
-                    }
-                }
-            }
+            Menu.Visibility = Visibility.Visible;
         }
 
         public void HideMenu(object sender, RoutedEventArgs e)
@@ -132,13 +117,7 @@ namespace MTGProxyDesk
 
         public void HideMenu()
         {
-            if (_Menu != null) { _Menu.Visibility = Visibility.Hidden; }
-        }
-
-        private void OnPropertyChanged(string propertyName)
-        {
-            var prop = this.PropertyChanged;
-            if (prop != null) prop(this, new PropertyChangedEventArgs(propertyName));
+            if (Menu != null) { Menu.Visibility = Visibility.Hidden; }
         }
 
         private void SetToDefaultImage()
@@ -155,6 +134,12 @@ namespace MTGProxyDesk
                 );
             }
             CardImage = defaultImage;
+        }
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            var prop = PropertyChanged;
+            if (prop != null) prop(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

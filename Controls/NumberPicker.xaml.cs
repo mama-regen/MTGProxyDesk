@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
 
-namespace MTGProxyDesk
+namespace MTGProxyDesk.Controls
 {
-    public partial class NumberPicker : UserControl, INotifyPropertyChanged
+    public partial class NumberPicker : MPDControl, INotifyPropertyChanged
     {
         private Action<int, object> _OnChange;
         public Action<int, object> OnChange
@@ -52,19 +51,34 @@ namespace MTGProxyDesk
                     int newValue = Math.Max(Min, Math.Min(Max, int.Parse(value)));
                     if (newValue != _Value) {
                         _Value = newValue;
-                        this.OnPropertyChanged("Value");
-                        this.OnChange(_Value, this);
+                        OnPropertyChanged("Value");
+                        OnChange(_Value, this);
                     }
                 } catch { }
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged = delegate { };
+        private Visibility _visibility;
+        public override Visibility CtrlVisibility
+        {
+            get => (Visibility)GetValue(VisibilityProperty);
+            set
+            {
+                if (Visibility != value)
+                {
+                    SetValue(VisibilityProperty, value);
+                    OnPropertyChanged("CtrlVisibility");
+                    OnPropertyChanged("Visibility");
+                }
+            }
+        }
+
+        public virtual event PropertyChangedEventHandler? PropertyChanged = delegate { };
 
         public NumberPicker()
         {
             InitializeComponent();
-            this.DataContext = this;
+            DataContext = this;
             _OnChange = (int _, object __) => { };
         }
 
@@ -90,7 +104,7 @@ namespace MTGProxyDesk
 
         private void OnPropertyChanged(string propertyName)
         {
-            var prop = this.PropertyChanged;
+            var prop = PropertyChanged;
             if (prop != null) prop(this, new PropertyChangedEventArgs(propertyName));
         }
     }
