@@ -320,7 +320,7 @@ namespace MTGProxyDesk
 
             int col = 0;
             int row = 0;
-            foreach (Card card in _Deck.CardList)
+            foreach (Card card in _Deck.CardsWithCount)
             {
                 CardControl newCard = NewCardControl();
                 newCard.Card = card;
@@ -382,16 +382,13 @@ namespace MTGProxyDesk
 
         private void SaveDeck()
         {
-            _Deck.ClearDeck();
+            _Deck.Clear();
             _Deck.Commander = Commander.Card;
             
             foreach (CardControl cardCtrl in DeckContainer.GetChildrenOfType<CardControl>())
             {
                 if (cardCtrl.Card == null) continue;
-                Card card = cardCtrl.Card;
-                int count = card.Count;
-                card.Count = 1;
-                _Deck.Add(card, count);
+                _Deck.AddCard(cardCtrl.Card);
             }
 
             SaveFileDialog sfd = new SaveFileDialog();

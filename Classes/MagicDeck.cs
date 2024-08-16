@@ -1,16 +1,12 @@
-﻿using System.ComponentModel;
+﻿using MTGProxyDesk.Classes;
+using System.ComponentModel;
 using System.IO;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 
 namespace MTGProxyDesk
 {
-    public sealed class MagicDeck
+    public sealed class MagicDeck : CardPile<MagicDeck>
     {
-        private static MagicDeck? _instance;
-        private static readonly object _lock = new object();
-
         private string? _filePath;
         public string FilePath
         {
@@ -23,59 +19,37 @@ namespace MTGProxyDesk
             get => _name ?? "";
         }
 
-        private List<Card?> Cards;
-        private Queue<int> Shuffle;
-        private int _LastIdx = 0;
+        public int LastIdx { get; private set; } = -1;
 
         public Card? Commander;
         public Card? CardBuffer;
-        
-        public int LastIdx
-        {
-            get { return _LastIdx; }
-        }
 
-        public int CardCount
-        {
-            get => Cards.Where(c => c != null).Count();
-        }
 
-        public List<Card> CardList
+        public Card[] CardsWithCount
         {
             get 
             {
-                int i = 0;
-                return Cards.Select(c =>
+                Dictionary<string, int> headCount = new Dictionary<string, int>();
+                foreach (var card in CardShuffle) 
                 {
-                    if (c != null) c.Count = Shuffle.Where(s => s == i).Count();
-                    i++;
-                    return c;
-                }).Where(c => c != null).ToList() as List<Card>;
-            }
-        }
-
-        private MagicDeck() 
-        {
-            Cards = new List<Card?>();
-            Shuffle = new Queue<int>();
-        }
-
-        public static MagicDeck Instance
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    if (_instance == null) _instance = new MagicDeck();
-                    return _instance;
+                    if (headCount.Keys.Contains(card.Id)) headCount[card.Id]++;
+                    else headCount[card.Id] = 1;
                 }
+                return Cards.Select(card =>
+                {
+                    card.Count = headCount[card.Id];
+                    return card;
+
+                }).ToArray()!;
             }
         }
+
+        private MagicDeck() { }
 
         public void Load(string filePath, BackgroundWorker bgWorker)
         {
             Commander = null;
-            Cards = new List<Card?>();
+            _cards = new List<Card>();
 
             _filePath = filePath;
 
@@ -134,113 +108,31 @@ namespace MTGProxyDesk
                     if (isCommander && Commander == null) Commander = card;
                     else
                     {
-                        Cards.Add(card);
-                        for (int i = 0; i < count; i++) Shuffle.Enqueue(Cards.Count() - 1);
+                        _cards.Add(card);
+                        for (int i = 0; i < count; i++) _shuffle.Enqueue(Cards.Count() - 1);
                     }
                 }
             }
             _name = Path.GetFileName(filePath);
 
-            Shuffle.Shuffle();
+            Shuffle();
         }
-
-        public void ShuffleDeck() { Shuffle.Shuffle(); }
 
         public Card Draw()
         {
-            int nextIdx = Shuffle.Dequeue();
-            _LastIdx = nextIdx;
+            int nextIdx = _shuffle.Dequeue();
+            LastIdx = nextIdx;
             return Cards[nextIdx]!;
         }
 
         public List<Card> Next(int howMany = 1)
         {
             List<Card> result = new List<Card>();
-
-            int i = 0;
-            while (result.Count() < howMany)
+            for (int i = 0; i < Math.Min(howMany, _shuffle.Count); i++)
             {
-                if (Cards[Shuffle.ElementAt(i)] != null) result.Add(Cards[Shuffle.ElementAt(i)]!);
-                i++;
+                result.Add(Cards[_shuffle.ElementAt(i)]);
             }
-
             return result;
-        }
-
-        public int IndexOf(Card card)
-        {
-            for (int i = 0; i < Cards.Count; i++)
-            {
-                if (Cards[i] != null && card.Id == Cards[i]!.Id) return i;
-            }
-            return -1;
-        }
-
-        public void PlaceOnTop(int idx)
-        {
-            Queue<int> newShuffle = new Queue<int>();
-            newShuffle.Enqueue(idx);
-            for (int i = 0; i < Shuffle.Count; i++) newShuffle.Enqueue(Shuffle.Dequeue());
-            Shuffle = newShuffle;
-        }
-
-        public void PlaceOnTop(Card card)
-        {
-            int idx = IndexOf(card);
-            PlaceOnTop(idx);
-        }
-
-        public void PlaceOnBottom(int idx)
-        {
-            Shuffle.Enqueue(idx);
-        }
-
-        public void PlaceOnBottom(Card card)
-        {
-            int idx = IndexOf(card);
-            Shuffle.Enqueue(idx);
-        }
-
-        public void Add(Card card, int count = 1)
-        {
-            for (int i = 0; i < count; i++)
-            {
-                Cards.Add(card);
-                Shuffle.Enqueue(Cards.Count - 1);
-            }
-        }
-
-        public void Remove(int idx)
-        {
-            Cards[idx] = null;
-            Queue<int> newShuffle = new Queue<int>();
-            for (int i = 0; i < Shuffle.Count; i++)
-            {
-                int x = Shuffle.Dequeue();
-                if (x != idx) newShuffle.Enqueue(x);
-            }
-            Shuffle = newShuffle;
-        }
-
-        public void Remove(Card card, int count = 0)
-        {
-            List<int> removeIdx = new List<int>();
-            for (int i = 0; i < Cards.Count; i++)
-            {
-                if (Cards[i] != null && Cards[i]!.Id == card.Id)
-                {
-                    Cards[i] = null;
-                    removeIdx.Add(i);
-                    if (count > 0 && removeIdx.Count() >= count) break;
-                }
-            }
-            Queue<int> newShuffle = new Queue<int>();
-            for (int i = 0; i < Shuffle.Count; i++)
-            {
-                int x = Shuffle.Dequeue();
-                if (!removeIdx.Contains(x)) newShuffle.Enqueue(x);
-            }
-            Shuffle = newShuffle;
         }
 
         public void Save(string filePath)
@@ -295,34 +187,12 @@ namespace MTGProxyDesk
             _name = Path.GetFileName(filePath);
         }
 
-        public void ClearDeck()
+        public override void Clear()
         {
+            base.Clear();
             Commander = null;
-            Cards = new List<Card?>();
-            Shuffle = new Queue<int>();
             _filePath = null;
             _name = null;
-        }
-    }
-
-    public static class Ext
-    {
-        private static Random rng = new Random();
-        public static Queue<int> Shuffle(this IEnumerable<int> idx)
-        {
-            List<int> list = idx.ToList();
-            int n = list.Count;
-            while (n > 1)
-            {
-                n--;
-                int k = rng.Next(n + 1);
-                int value = list[k];
-                list[k] = list[n];
-                list[n] = value;
-            }
-            Queue<int> result = new Queue<int>();
-            foreach (int i in list) result.Enqueue(i);
-            return result;
         }
     }
 }

@@ -79,7 +79,7 @@ namespace MTGProxyDesk
 
         public void NewDeck(object sender, RoutedEventArgs e)
         {
-            magicDeck.ClearDeck();
+            magicDeck.Clear();
             NavigationService.Navigate(new NewDeckPage());
         }
 

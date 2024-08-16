@@ -27,5 +27,23 @@
                 }, TaskScheduler.Default);
             };
         }
+
+        private static Random rng = new Random();
+        public static Queue<int> Shuffle(this IEnumerable<int> idx)
+        {
+            List<int> list = idx.ToList();
+            int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = rng.Next(n + 1);
+                int value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
+            Queue<int> result = new Queue<int>();
+            foreach (int i in list) result.Enqueue(i);
+            return result;
+        }
     }
 }

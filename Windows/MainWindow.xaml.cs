@@ -13,7 +13,7 @@ namespace MTGProxyDesk
 
         public void OnWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            MagicDeck.Instance.ClearDeck();
+            MagicDeck.Instance.Clear();
             string tempFolder = System.IO.Path.Join(System.IO.Path.GetTempPath(), "mtg_prox_desk");
             if (Directory.Exists(tempFolder))
             {
