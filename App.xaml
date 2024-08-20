@@ -30,8 +30,10 @@
 
             <SolidColorBrush x:Key="BG1" Color="{DynamicResource BG1_Color}" />
             <SolidColorBrush x:Key="BG2" Color="{DynamicResource BG2_Color}" />
+            <SolidColorBrush x:Key="BG3" Color="{DynamicResource BG3_Color}" />
             <SolidColorBrush x:Key="FG1" Color="{DynamicResource FG1_Color}" />
             <SolidColorBrush x:Key="FG2" Color="{DynamicResource FG2_Color}" />
+            <SolidColorBrush x:Key="FG3" Color="{DynamicResource FG3_Color}" />
 
             <SolidColorBrush x:Key="White" Color="{DynamicResource White_Color}" />
             <SolidColorBrush x:Key="Blue" Color="{DynamicResource Blue_Color}" />

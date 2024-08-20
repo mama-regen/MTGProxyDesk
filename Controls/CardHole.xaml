@@ -1,0 +1,52 @@
+﻿<local:MPDControl 
+    x:Class="MTGProxyDesk.Controls.CardHole"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:MTGProxyDesk.Controls"
+    mc:Ignorable="d" 
+    d:DesignHeight="350" d:DesignWidth="250"
+>
+    <UserControl.Resources>
+        <Style x:Key="HoleButtonStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border 
+                            Name="border" 
+                            BorderThickness="1"
+                            BorderBrush="Transparent" 
+                            Background="Transparent"
+                            CornerRadius="10"
+                            Padding="0"
+                        >
+                            <ContentPresenter Margin="0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{Binding HoverColor}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Button Style="{StaticResource HoleButtonStyle}">
+        <StackPanel Margin="0" Width="250" Height="350">
+            <Label 
+                FontSize="30"
+                HorizontalAlignment="Center"
+                Margin="0,200,0,0"
+                Foreground="{DynamicResource FG3}"
+                Content="{Binding TextContent}"
+            >
+                <Label.Effect>
+                    <DropShadowEffect ShadowDepth="1" BlurRadius="5" Color="#000000" />
+                </Label.Effect>
+            </Label>
+        </StackPanel>
+    </Button>
+</local:MPDControl>

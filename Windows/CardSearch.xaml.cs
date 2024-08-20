@@ -1,9 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
-using MTGProxyDesk.Constants;
+using MTGProxyDesk.Classes;
 using MTGProxyDesk.Controls;
-using MTGProxyDesk.Extensions;
 
 namespace MTGProxyDesk
 {    

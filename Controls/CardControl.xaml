@@ -17,9 +17,16 @@
                             BorderBrush="Transparent" 
                             CornerRadius="10"
                             Padding="0"
+                            Width="{TemplateBinding Width}"
+                            Height="{TemplateBinding Height}"
+                            Background="{
+                                Binding Path=CardImage, 
+                                IsAsync=True,
+                                UpdateSourceTrigger=PropertyChanged
+                            }"
                         >
-                            <ContentPresenter Margin="0" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
+                            <ContentPresenter Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                            </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="border" Property="BorderBrush" Value="{Binding HoverColor}" />
@@ -40,27 +47,40 @@
         </Grid.RowDefinitions>
 
         <Viewbox Stretch="Uniform">
-            <Grid>
-                <Button 
-                    Padding="0"
-                    Width="250" 
-                    Height="350"
-                    Style="{StaticResource CardButtonStyle}"
-                    Click="ShowMenu"
-                    MouseLeave="HideMenu"
+            <Button 
+                Padding="0"
+                Width="250" 
+                Height="350"
+                Click="HandleClick"
+                MouseLeave="HideMenu"
+                Style="{StaticResource CardButtonStyle}"
+            >
+                <Grid
+                    VerticalAlignment="Stretch"
+                    HorizontalAlignment="Stretch"
                 >
-                    <Grid>
-                        <Image
-                            Source="{
-                                Binding Path=CardImage, 
-                                IsAsync=True,
-                                UpdateSourceTrigger=PropertyChanged
-                            }"
-                        />
-                    </Grid>
-                </Button>
-                <StackPanel Visibility="Hidden" MouseEnter="ShowMenu" Name="Menu" VerticalAlignment="Center"/>
-            </Grid>
+                    <StackPanel 
+                        Visibility="Hidden" 
+                        MouseEnter="ShowMenu" 
+                        Name="Menu" 
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Stretch"
+                    />
+                    <Label
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        FontSize="30"
+                        Foreground="{DynamicResource FG1}"
+                        FontFamily="{DynamicResource AppFont}"
+                        Content="{Binding Path=TextContent}" 
+                        Visibility="{Binding Path=TextVisibility, UpdateSourceTrigger=PropertyChanged}"
+                    >
+                        <Label.Effect>
+                            <DropShadowEffect ShadowDepth="1" BlurRadius="5" Color="#000000" />
+                        </Label.Effect>
+                    </Label>
+                </Grid>
+            </Button>
         </Viewbox>
     </Grid>
 </local:MPDControl>

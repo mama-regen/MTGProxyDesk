@@ -191,7 +191,7 @@ namespace MTGProxyDesk
 
             string ext = ".jpg";
             if (card.Image_Uris.Png != null) ext = ".png";
-            string filepath = Path.Join(Path.GetTempPath(), "mtg_prox_desk", card.Id + ext);
+            string filepath = Path.Join(Helper.TempFolder, card.Id + ext);
 
             Image = Helper.DownloadImage(new Uri(card.Image_Uris.Png ?? card.Image_Uris.Large ?? card.Image_Uris.Normal!), filepath);
             AllowAnyAmount = card.Type_Line.ToLower().Contains("basic land") || card.Oracle_Text.ToLower().Contains("a deck can have any number of cards named " + card.Name.ToLower());
@@ -249,7 +249,7 @@ namespace MTGProxyDesk
 
             Func<_Card?> pick = () =>
             {
-                _Card select = data.ElementAt(rand.Next(0, data.Length - 1));
+                _Card select = data.ElementAt(rand.Next(data.Length));
                 if (select.Image_Uris != null && select.Image_Uris.Art_Crop != null) return select;
                 return null;
             };
@@ -257,7 +257,7 @@ namespace MTGProxyDesk
             _Card? chosen = null;
             while (chosen == null) chosen = pick();
             return (
-                Helper.DownloadImage(new Uri(chosen.Image_Uris!.Art_Crop!), Path.Join(Path.GetTempPath(), "mtg_prox_desk", fileName + ".png")),
+                Helper.DownloadImage(new Uri(chosen.Image_Uris!.Art_Crop!), Path.Join(Helper.TempFolder, fileName + ".png")),
                 chosen.Artist
             );
         }

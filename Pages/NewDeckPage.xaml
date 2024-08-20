@@ -54,26 +54,6 @@
                     <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
 
-                <Label
-                    Foreground="{DynamicResource FG2}" 
-                    Name="CommanderLabel" 
-                    Content="Commander" 
-                    HorizontalAlignment="Right" 
-                    VerticalAlignment="Center"
-                    FontSize="30"
-                    Margin="0,0,5,0"
-                    FontFamily="{DynamicResource AppFont}" 
-                />
-                <Label
-                    Grid.Row="2"
-                    Foreground="{DynamicResource FG2}" 
-                    Content="Deck" 
-                    HorizontalAlignment="Left" 
-                    FontSize="30"
-                    Margin="5,0,0,0"
-                    VerticalAlignment="Center"
-                    FontFamily="{DynamicResource AppFont}" 
-                />
                 <Viewbox Grid.Column="1" Grid.Row="1" Visibility="{Binding CountVisibility}">
                     <DockPanel>
                         <Label
@@ -127,6 +107,7 @@
                     Grid.RowSpan="3" 
                     Margin="5" 
                     x:Name="Commander"
+                    TextContent="Commander"
                 >
                     <ctrls:MPDButton
                         TextContent="Add"
@@ -168,28 +149,28 @@
 
                         <ctrls:CardControl Margin="5" x:Name="cardCtrl">
                             <ctrls:MPDButton
-                    TextContent="Add"
-                    Tag="Add"
-                    Click="AddCard"
-                    Margin="30,10,30,0"
-                />
+                                TextContent="Add"
+                                Tag="Add"
+                                Click="AddCard"
+                                Margin="30,10,30,0"
+                            />
 
                             <ctrls:NumberPicker
-                    Visibility="Collapsed" 
-                    HorizontalAlignment="Center" 
-                    VerticalAlignment="Center" 
-                    Min="1" 
-                    Max="4" 
-                    OnChange="UpdateCardCount"
-                />
+                                Visibility="Collapsed" 
+                                HorizontalAlignment="Center" 
+                                VerticalAlignment="Center" 
+                                Min="1" 
+                                Max="4" 
+                                OnChange="UpdateCardCount"
+                            />
 
                             <ctrls:MPDButton
-                    TextContent="Remove"
-                    Tag="Remove"
-                    Click="RemoveCard"
-                    CtrlVisibility="Collapsed"
-                    Margin="30,10,30,0"
-                />
+                                TextContent="Remove"
+                                Tag="Remove"
+                                Click="RemoveCard"
+                                CtrlVisibility="Collapsed"
+                                Margin="30,10,30,0"
+                            />
                         </ctrls:CardControl>
                     </Grid>
                 </StackPanel>

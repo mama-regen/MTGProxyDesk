@@ -1,11 +1,10 @@
 ﻿using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using MTGProxyDesk.Controls;
 using MTGProxyDesk.Extensions;
-using MTGProxyDesk.Constants;
 using System.ComponentModel;
+using MTGProxyDesk.Classes;
 
 namespace MTGProxyDesk
 {
@@ -368,13 +367,11 @@ namespace MTGProxyDesk
             if (Commander.Card == null && total >= 100)
             {
                 Commander.CtrlVisibility = Visibility.Collapsed;
-                CommanderLabel.Visibility = Visibility.Collapsed;
                 CountVisibility = Visibility.Visible;
             }
             else
             {
                 Commander.CtrlVisibility = Visibility.Visible;
-                CommanderLabel.Visibility = Visibility.Visible;
                 CountVisibility = Visibility.Collapsed;
             }
             return total;
@@ -392,7 +389,7 @@ namespace MTGProxyDesk
             }
 
             SaveFileDialog sfd = new SaveFileDialog();
-            sfd.InitialDirectory = Helper.GetDocumentsFolder();
+            sfd.InitialDirectory = Helper.DocumentsFolder;
             sfd.Filter = "MTG Proxy Deck (*.mpd)|*.mpd|All Files (*.*)|*.*";
             sfd.FilterIndex = 1;
             sfd.ShowDialog();

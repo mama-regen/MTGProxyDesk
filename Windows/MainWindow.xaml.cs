@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using MTGProxyDesk.Classes;
+using MTGProxyDesk.Windows;
+using System.ComponentModel;
+using System.IO;
 using System.Windows;
 
 namespace MTGProxyDesk
@@ -8,16 +11,23 @@ namespace MTGProxyDesk
         public MainWindow()
         {
             InitializeComponent();
-            Closing += OnWindowClosing!;
         }
 
-        public void OnWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        protected override void OnClosing(CancelEventArgs e)
         {
+            base.OnClosing(e);
             MagicDeck.Instance.Clear();
-            string tempFolder = System.IO.Path.Join(System.IO.Path.GetTempPath(), "mtg_prox_desk");
-            if (Directory.Exists(tempFolder))
+            Hand.Instance.Clear();
+            Graveyard.Instance.Clear();
+            Exile.Instance.Clear();
+            HandDisplay.CloseInstance();
+
+            try { Directory.Delete(Helper.TempFolder, true); } catch 
             {
-                try { Directory.Delete(tempFolder, true); } catch { }
+                try
+                {
+                    foreach (FileInfo file in new DirectoryInfo(Helper.TempFolder).GetFiles()) file.Delete();
+                } catch { }
             }
         }
     }

@@ -144,7 +144,6 @@
                             HorizontalAlignment="Stretch"
                             TextContent="Play"
                             Click="BeginPlay"
-                            IsEnabled="False"
                         />
                     </Grid>
 

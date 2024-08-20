@@ -13,6 +13,8 @@ namespace MTGProxyDesk.Classes
 
         protected Queue<int> _shuffle = new Queue<int>();
         public Card[] CardShuffle { get => _shuffle.Select(i => _cards[i]).ToArray(); }
+
+        public Card? CardBuffer { get; set; }
         
         public virtual int CardCount { get => _shuffle.Count; }
 
@@ -108,6 +110,6 @@ namespace MTGProxyDesk.Classes
             _shuffle.Clear();
         }
 
-        public void Shuffle() { _shuffle.Shuffle(); }
+        public void Shuffle() { _shuffle = _shuffle.Shuffle(); }
     }
 }

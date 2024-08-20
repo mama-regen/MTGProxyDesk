@@ -4,12 +4,13 @@ using System.Windows.Controls;
 using System.IO;
 using System.ComponentModel;
 using System.Windows.Media.Imaging;
+using MTGProxyDesk.Windows;
+using MTGProxyDesk.Classes;
 
 namespace MTGProxyDesk
 {
     public partial class StartPage : Page, INotifyPropertyChanged
     {
-        private MagicDeck magicDeck;
         private string filePath = "";
 
         public string FileName
@@ -17,7 +18,7 @@ namespace MTGProxyDesk
             get
             {
                 if (filePath != "") return Path.GetFileName(filePath);
-                return magicDeck.Name;
+                return MagicDeck.Instance.Name;
             }
             set { }
         }
@@ -40,14 +41,14 @@ namespace MTGProxyDesk
             InitializeComponent();
             DataContext = this;
 
-            Helper.EnsureDocumentsFolder();
+            HandDisplay.CloseInstance();
+
             _backgroundImage = new BitmapImage(new Uri("pack://application:,,,/img/bg.png"));
             GetBackgroundImage();
 
-            magicDeck = MagicDeck.Instance;
             Application.Current.MainWindow.WindowState = WindowState.Normal;
 
-            if (magicDeck.Name != "")
+            if (MagicDeck.Instance.Name != "")
             {
                 NoDeckLoaded.Visibility = Visibility.Collapsed;
                 NoDeckLoaded.IsEnabled = false;
@@ -59,7 +60,6 @@ namespace MTGProxyDesk
         public void BrowseDeck(object sender, RoutedEventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
-            ofd.InitialDirectory = Helper.GetDocumentsFolder();
             ofd.Filter = "MTG Proxy Deck (*.mpd)|*.mpd|All Files (*.*)|*.*";
             ofd.FilterIndex = 1;
             ofd.RestoreDirectory = true;
@@ -79,7 +79,7 @@ namespace MTGProxyDesk
 
         public void NewDeck(object sender, RoutedEventArgs e)
         {
-            magicDeck.Clear();
+            MagicDeck.Instance.Clear();
             NavigationService.Navigate(new NewDeckPage());
         }
 
@@ -87,7 +87,7 @@ namespace MTGProxyDesk
         {
             BackgroundWorker worker = new BackgroundWorker();
             worker.WorkerReportsProgress = true;
-            worker.DoWork += (sender, e) => magicDeck.Load(filePath == "" ? magicDeck.FilePath : filePath, (BackgroundWorker)sender!);
+            worker.DoWork += (sender, e) => MagicDeck.Instance.Load(filePath == "" ? MagicDeck.Instance.FilePath : filePath, (BackgroundWorker)sender!);
             worker.ProgressChanged += (sender, e) =>
             {
                 LoadProgress.Value = 100 - e.ProgressPercentage;
@@ -98,7 +98,15 @@ namespace MTGProxyDesk
 
         public void BeginPlay(object sender, RoutedEventArgs e)
         {
-
+            BackgroundWorker worker = new BackgroundWorker();
+            worker.WorkerReportsProgress = true;
+            worker.DoWork += (sender, e) => MagicDeck.Instance.Load(filePath == "" ? MagicDeck.Instance.FilePath : filePath, (BackgroundWorker)sender!);
+            worker.ProgressChanged += (sender, e) =>
+            {
+                LoadProgress.Value = 100 - e.ProgressPercentage;
+            };
+            worker.RunWorkerCompleted += (_, __) => NavigationService.Navigate(new PlayMat());
+            worker.RunWorkerAsync();
         }
 
         private void OnPropertyChanged(string propertyName)

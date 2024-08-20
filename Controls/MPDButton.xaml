@@ -38,11 +38,15 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource WUBRG_MTG_Diag}" />
-                                <Setter TargetName="border" Property="BorderThickness" Value="1" />
+                                <Setter TargetName="content" Property="TextBlock.Foreground" Value="{DynamicResource FG1}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="border" Property="Background" Value="{DynamicResource DarkGradient_Diag}" />
-                                <Setter TargetName="content" Property="TextBlock.Foreground" Value="{DynamicResource LightGradient_Diag}"/>
+                                <Setter TargetName="content" Property="TextBlock.Foreground" Value="{DynamicResource WUBRG_MTG_Diag}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource DarkerGradient_Diag}" />
+                                <Setter TargetName="content" Property="TextBlock.Foreground" Value="{DynamicResource LightGradient_Diag}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>

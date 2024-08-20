@@ -1,9 +1,8 @@
-﻿using MTGProxyDesk.Classes;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.IO;
 using System.Windows.Media.Imaging;
 
-namespace MTGProxyDesk
+namespace MTGProxyDesk.Classes
 {
     public sealed class MagicDeck : CardPile<MagicDeck>
     {
@@ -22,8 +21,6 @@ namespace MTGProxyDesk
         public int LastIdx { get; private set; } = -1;
 
         public Card? Commander;
-        public Card? CardBuffer;
-
 
         public Card[] CardsWithCount
         {
@@ -53,8 +50,6 @@ namespace MTGProxyDesk
 
             _filePath = filePath;
 
-            string temp_filePath = Path.Join(Path.GetTempPath(), "mtg_prox_desk");
-            if (!Path.Exists(temp_filePath)) Directory.CreateDirectory(temp_filePath);
             using (FileStream fs = new FileStream(filePath, FileMode.Open))
             {
                 byte[] flags = new byte[2];
@@ -100,7 +95,7 @@ namespace MTGProxyDesk
                         }
                     }
 
-                    string imgPath = Path.Join(temp_filePath, id + (isPng ? ".png" : ".jpg"));
+                    string imgPath = Path.Join(Helper.TempFolder, id + (isPng ? ".png" : ".jpg"));
                     File.WriteAllBytes(imgPath, imgBytes);
 
                     Card card = new Card(id, imgPath, 1, anyAmount);

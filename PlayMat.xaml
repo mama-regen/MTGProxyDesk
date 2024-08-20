@@ -4,12 +4,346 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:MTGProxyDesk"
+      xmlns:ctrls="clr-namespace:MTGProxyDesk.Controls"
       mc:Ignorable="d" 
       d:DesignHeight="1080" d:DesignWidth="1920"
       Title="PlayMat"
  >
+    <Page.Resources>
+        <Style x:Key="{x:Type ScrollBar}" TargetType="{x:Type ScrollBar}">
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="OverridesDefaultStyle" Value="true"/>
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Horizontal">
+                    <Setter Property="Width" Value="Auto"/>
+                    <Setter Property="Height" Value="18" />
+                    <Setter Property="Template" Value="{DynamicResource HorizontalScrollBar}" />
+                </Trigger>
+                <Trigger Property="Orientation" Value="Vertical">
+                    <Setter Property="Width" Value="18"/>
+                    <Setter Property="Height" Value="Auto" />
+                    <Setter Property="Template" Value="{DynamicResource VerticalScrollBar}" />
+                </Trigger>
+            </Style.Triggers>
 
-    <Viewbox Width="1920" Height="1080">
-        
-    </Viewbox>
+        </Style>
+
+        <SolidColorBrush x:Key="AreaDarken">
+            <SolidColorBrush.Color>
+                <Color>
+                    <Color.R>0</Color.R>
+                    <Color.G>0</Color.G>
+                    <Color.B>0</Color.B>
+                    <Color.A>100</Color.A>
+                </Color>
+            </SolidColorBrush.Color>
+        </SolidColorBrush>
+    </Page.Resources>
+
+    <Border Background="{DynamicResource DarkerGradient_Vert}">
+        <Viewbox HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Border Background="{
+                Binding Path=BackgroundImage,
+                IsAsync=True,
+                UpdateSourceTrigger=PropertyChanged
+            }">
+                <Grid
+                    Width="1920"
+                    Height="1080"
+                >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border 
+                        Grid.Column="0" 
+                        Grid.RowSpan="4"
+                        BorderThickness="0"
+                        CornerRadius="5,0,5,0"
+                        Margin="0,0,5,0"
+                        Background="{StaticResource AreaDarken}"
+                    />
+
+                    <ctrls:CardHole 
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        Margin="7"
+                        x:Uid="Left_0"
+                    />
+                    <ctrls:CardHole 
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        Margin="7"
+                        Grid.Row="1" 
+                        x:Uid="Left_1"
+                    />
+                    <Label
+                        Content="Exile"
+                        Grid.Row="2"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Foreground="{DynamicResource FG3}"
+                        FontSize="40"
+                        FontFamily="{DynamicResource AppFont}"
+                    >
+                        <Label.Effect>
+                            <DropShadowEffect ShadowDepth="1" BlurRadius="5" Color="#000000" />
+                        </Label.Effect>
+                    </Label>
+                    <ctrls:CardControl 
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        Margin="7"
+                        Grid.Row="2" 
+                        Uid="ExileControl"
+                        Visibility="Collapsed"
+                    >
+                    
+                    </ctrls:CardControl>
+                    <Label
+                        Content="Graveyard"
+                        Grid.Row="3"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Foreground="{DynamicResource FG3}"
+                        FontSize="40"
+                        FontFamily="{DynamicResource AppFont}"
+                    >
+                        <Label.Effect>
+                            <DropShadowEffect ShadowDepth="1" BlurRadius="5" Color="#000000" />
+                        </Label.Effect>
+                    </Label>
+                    <ctrls:CardControl 
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        Margin="7"
+                        Grid.Row="3" 
+                        Uid="GraveyardControl"
+                        Visibility="Collapsed"
+                    >
+                        
+                    </ctrls:CardControl>
+
+                    <Border 
+                        Grid.Column="9" 
+                        Grid.RowSpan="4"
+                        BorderThickness="0"
+                        CornerRadius="0,5,0,5"
+                        Margin="5,0,0,0"
+                        Background="{StaticResource AreaDarken}"
+                    />
+
+                    <ctrls:CardHole 
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        Margin="7"
+                        Grid.Column="9" 
+                        x:Uid="Right_0"
+                    />
+                    <ctrls:CardHole 
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        Margin="7"
+                        Grid.Column="9" 
+                        Grid.Row="1" 
+                        x:Uid="Right_1"
+                    />
+                    <ctrls:CardHole 
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        Margin="9"
+                        Grid.Column="7"
+                        Grid.Row="2"
+                        x:Uid="Right_2"
+                    />
+                    <ctrls:CardControl 
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        Margin="7"
+                        Grid.Column="9" 
+                        Grid.Row="2"
+                        Uid="CommanderControl"
+                        Visibility="Collapsed"
+                    >
+
+                    </ctrls:CardControl>
+                    <ctrls:CardControl 
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        Margin="7"
+                        Grid.Column="9" 
+                        Grid.Row="3" 
+                        Uid="DeckControl"
+                        TextContent="Deck"
+                    >
+                        <DockPanel Margin="30,10,30,0">
+                            <ctrls:NumberPicker
+                                DockPanel.Dock="Top"
+                                OnChange="UpdateDeckDrawCount"
+                                Margin="0"
+                                HorizontalAlignment="Center"
+                            />
+                            <ctrls:MPDButton
+                                DockPanel.Dock="Bottom"
+                                TextContent="Draw"
+                                Click="DrawCard"
+                                Margin="0"
+                            />
+                        </DockPanel>
+                        <DockPanel Margin="30,10,30,0">
+                            <ctrls:NumberPicker
+                                DockPanel.Dock="Top"
+                                OnChange="UpdateDeckViewCount"
+                                Margin="0"
+                                HorizontalAlignment="Center"
+                            />
+                            <ctrls:MPDButton
+                                DockPanel.Dock="Bottom"
+                                TextContent="View"
+                                Click="DrawCard"
+                                Margin="0"
+                            />
+                        </DockPanel>
+
+                        <ctrls:MPDButton
+                            TextContent="Shuffle"
+                            Click="ShuffleDeck"
+                            Margin="30,10,30,0"
+                        />
+                    </ctrls:CardControl>
+
+                    <Border 
+                        Grid.Column="1"
+                        Grid.ColumnSpan="8"
+                        Grid.RowSpan="3"
+                        BorderThickness="0"
+                        CornerRadius="0,0,5,5"
+                        Margin="5,0,5,5"
+                        Background="{StaticResource AreaDarken}"
+                    />
+
+                    <ScrollViewer
+                        Grid.Column="1"
+                        Grid.ColumnSpan="8"
+                        Grid.RowSpan="3"
+                        Margin="5,0,5,5" 
+                        Padding="0" 
+                        VerticalScrollBarVisibility="Disabled" 
+                        HorizontalScrollBarVisibility="Disabled"
+                    >
+                        <StackPanel Name="MainArea" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                            
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <Border 
+                        Grid.Column="1" 
+                        Grid.Row="8"
+                        Grid.ColumnSpan="8"
+                        BorderThickness="0"
+                        CornerRadius="5,5,0,0"
+                        Margin="5,5,5,0"
+                        Background="{StaticResource AreaDarken}"
+                    />
+
+                    <ctrls:CardHole 
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center" 
+                        Margin="7"
+                        Grid.Column="1"
+                        Grid.Row="3"
+                        x:Uid="Bottom_0"
+                    />
+                    <ctrls:CardHole 
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center" 
+                        Margin="7"
+                        Grid.Column="2" 
+                        Grid.Row="3"
+                        x:Uid="Bottom_1"
+                    />
+                    <ctrls:CardHole 
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center" 
+                        Margin="7"
+                        Grid.Column="3" 
+                        Grid.Row="3"
+                        x:Uid="Bottom_2"
+                    />
+                    <ctrls:CardHole 
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center" 
+                        Margin="7"
+                        Grid.Column="4"
+                        Grid.Row="3"
+                        x:Uid="Bottom_3"
+                    />
+                    <ctrls:CardHole 
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center" 
+                        Margin="7"
+                        Grid.Column="5"
+                        Grid.Row="3"
+                        x:Uid="Bottom_4"
+                    />
+                    <ctrls:CardHole 
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center" 
+                        Margin="7"
+                        Grid.Column="6"
+                        Grid.Row="3"
+                        x:Uid="Bottom_5"
+                    />
+                    <ctrls:CardHole 
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center" 
+                        Margin="7"
+                        Grid.Column="7"
+                        Grid.Row="3"
+                        x:Uid="Bottom_6"
+                    />
+                    <ctrls:CardHole 
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center" 
+                        Margin="7"
+                        Grid.Column="8" 
+                        Grid.Row="3"
+                        x:Uid="Bottom_7"
+                    />
+
+                    <Border
+                        Grid.Column="4"
+                        Grid.Row="1"
+                        Grid.ColumnSpan="2"
+                        Grid.RowSpan="2"
+                        Background="{DynamicResource DarkGradient_Diag}"
+                        BorderBrush="{DynamicResource LightGradient_Diag}"
+                        BorderThickness="5"
+                        CornerRadius="6"
+                        Visibility="{Binding ShowCardVisibility, UpdateSourceTrigger=PropertyChanged}" 
+                    >
+                        <Border 
+                            Margin="20"
+                            Background="{Binding ShowCard, UpdateSourceTrigger=PropertyChanged}"
+                        ></Border>
+                    </Border>
+                </Grid>
+            </Border>
+        </Viewbox>
+    </Border>
 </Page>

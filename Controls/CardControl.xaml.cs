@@ -5,8 +5,8 @@ using System.Windows.Controls;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using MTGProxyDesk.Classes;
 using MTGProxyDesk.Extensions;
-using MTGProxyDesk.Constants;
 
 namespace MTGProxyDesk.Controls
 {
@@ -14,6 +14,8 @@ namespace MTGProxyDesk.Controls
     public partial class CardControl : MPDControl, INotifyPropertyChanged
     {
         private BitmapImage? defaultImage = null;
+
+        public Visibility TextVisibility { get; private set; } = Visibility.Visible;
 
         private Card? _Card;
         public Card? Card
@@ -30,7 +32,7 @@ namespace MTGProxyDesk.Controls
                 {
                     _Card = value;
                     OnPropertyChanged("Card");
-                    CardImage = _Card.Image;
+                    CardImage = new ImageBrush(_Card.Image);
                 }
             }
         }
@@ -62,8 +64,8 @@ namespace MTGProxyDesk.Controls
             get { return Menu == null || Menu.GetChildOfType<MPDButton>() == null ? Brushes.Transparent : (LinearGradientBrush)FindResource("WUBRG_MTG_Diag"); }
         }
 
-        private BitmapSource? _CardImage;
-        public BitmapSource? CardImage
+        private ImageBrush? _CardImage;
+        public ImageBrush? CardImage
         {
             get { return _CardImage; }
             set
@@ -100,6 +102,27 @@ namespace MTGProxyDesk.Controls
             HideMenu();
         }
 
+        public void HandleClick(object sender, RoutedEventArgs e)
+        {
+            if (Hand.Instance.CardBuffer == null)
+            {
+                ShowMenu();
+                return;
+            }
+
+            if (Card == null)
+            {
+                Card = Hand.Instance.CardBuffer;
+                Hand.Instance.CardBuffer = null;
+                return;
+            }
+
+            if (Hand.Instance.CardBuffer!.Id != Card.Id) return;
+
+            Count += Hand.Instance.CardBuffer.Count;
+            Hand.Instance.CardBuffer = null;
+        }
+
         public void ShowMenu(object sender, RoutedEventArgs e)
         {
             ShowMenu();
@@ -107,7 +130,11 @@ namespace MTGProxyDesk.Controls
 
         public void ShowMenu() 
         {
+            if (Menu == null) return;
             Menu.Visibility = Visibility.Visible;
+            if (Menu.GetChildOfType<MPDButton>() == null) return;
+            TextVisibility = Visibility.Collapsed;
+            OnPropertyChanged("TextVisibility");
         }
 
         public void HideMenu(object sender, RoutedEventArgs e)
@@ -117,7 +144,10 @@ namespace MTGProxyDesk.Controls
 
         public void HideMenu()
         {
-            if (Menu != null) { Menu.Visibility = Visibility.Hidden; }
+            if (Menu == null) return;
+            Menu.Visibility = Visibility.Hidden;
+            TextVisibility = Visibility.Visible;
+            OnPropertyChanged("TextVisibility");
         }
 
         private void SetToDefaultImage()
@@ -133,7 +163,7 @@ namespace MTGProxyDesk.Controls
                     )
                 );
             }
-            CardImage = defaultImage;
+            CardImage = new ImageBrush(defaultImage);
         }
 
         private void OnPropertyChanged(string propertyName)

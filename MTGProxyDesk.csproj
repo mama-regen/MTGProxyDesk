@@ -9,10 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="card_back.png" />
-    <None Remove="img\bg.png" />
-    <None Remove="scripts\cds.py" />
     <None Remove="img\card_back.png" />
+    <None Remove="img\bg.png" />
+    <None Remove="img\playmat_black.png" />
+    <None Remove="img\playmat_blue.png" />
+    <None Remove="img\playmat_default.png" />
+    <None Remove="img\playmat_green.png" />
+    <None Remove="img\playmat_red.png" />
+    <None Remove="img\playmat_white.png" />
+    <None Remove="img\card_back.png" />
+	<None Remove="scripts\cds.py" />
     <None Remove="scripts\py_readme.md" />
   </ItemGroup>
 
@@ -26,8 +32,28 @@
     <Resource Include="img\bg.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="scripts\cds.py" />
-    <Resource Include="img\card_back.png" />
+    <Resource Include="img\playmat_black.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="img\playmat_blue.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="img\playmat_default.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="img\playmat_green.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="img\playmat_red.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="img\playmat_white.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="img\card_back.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+	<Resource Include="scripts\cds.py" />
     <Resource Include="scripts\py_readme.md" />
   </ItemGroup>
 
