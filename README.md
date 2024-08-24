@@ -24,9 +24,3 @@ Hand window will minimize instead of close as long as the play window is active.
 - Byte N<sup>33</sup> => `bool` No card limit flag <sub>(**Basic lands** or has text *"A deck can have any number of cards named **X**"*)</sub>
 - Byte N<sup>34</sup> -> N<sup>37</sup> => `int32` Image byte length
 - Byte N<sup>38</sup> -> N<sup>38 + Image Byte Length</sup> => `png | jpg` Image
-
----
-
-## Current Progress
-- Play page sections created.
-- Hand display window created.

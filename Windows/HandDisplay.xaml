@@ -5,9 +5,11 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="clr-namespace:MTGProxyDesk.Windows"
+    xmlns:ctrls="clr-namespace:MTGProxyDesk.Controls"
     WindowStartupLocation="CenterScreen"
+    ResizeMode="CanMinimize"
     mc:Ignorable="d"
-    Title="HandDisplay" 
+    Title="Hand" 
     Height="430" Width="1912"
 >
     <Window.Resources>
@@ -31,6 +33,16 @@
 
     <Border Background="{DynamicResource DarkerGradient_Diag}">
         <DockPanel LastChildFill="True">
+            <DockPanel DockPanel.Dock="Top" Height="46">
+                <ctrls:MPDButton
+                    HorizontalAlignment="Right"
+                    FontSize="30"
+                    TextContent=" Untap All "
+                    Margin="0,2,10,2"
+                    DockPanel.Dock="Right" 
+                    Click="UntapAllCards"
+                />
+            </DockPanel>
             <ScrollViewer 
                 HorizontalAlignment="Stretch" 
                 VerticalAlignment="Stretch"
@@ -38,7 +50,7 @@
                 HorizontalScrollBarVisibility="Disabled"
                 DockPanel.Dock="Bottom"
             >
-                <Grid x:Name="CardGrid" HorizontalAlignment="Stretch" Margin="0,47,0,0">
+                <Grid x:Name="CardGrid" HorizontalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="1*"/>

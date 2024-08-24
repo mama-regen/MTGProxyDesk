@@ -18,12 +18,24 @@
     <None Remove="img\playmat_red.png" />
     <None Remove="img\playmat_white.png" />
     <None Remove="img\card_back.png" />
+    <None Remove="img\tap.png" />
 	<None Remove="scripts\cds.py" />
     <None Remove="scripts\py_readme.md" />
+    <None Remove="shuffle.wav" />
+    <None Remove="Sounds\draw.wav" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MtgApiManager.Lib" Version="2.3.3" />
+    <Content Include="Sounds\draw.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Sounds\shuffle.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Linq" Version="4.3.0" />
     <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
   </ItemGroup>
@@ -51,6 +63,9 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
     <Resource Include="img\card_back.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="img\tap.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
 	<Resource Include="scripts\cds.py" />

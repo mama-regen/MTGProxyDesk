@@ -6,4 +6,13 @@
         Bottom,
         Random
     }
+
+    public enum PlaySource
+    {
+        Command,
+        Deck,
+        Hand,
+        Graveyard,
+        Exile
+    }
 }

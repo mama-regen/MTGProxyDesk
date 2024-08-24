@@ -1,18 +1,41 @@
 ﻿using System.ComponentModel;
 using System.Windows;
-using System.Windows.Media;
-using MTGProxyDesk.Constants;
-using MTGProxyDesk.Extensions;
 
 namespace MTGProxyDesk.Controls
 {
     public partial class MPDButton : MPDControl, INotifyPropertyChanged
     {
+        public static readonly RoutedEvent MPDClickEvent = EventManager.RegisterRoutedEvent(
+            name: "ClickEvent",
+            routingStrategy: RoutingStrategy.Bubble,
+            handlerType: typeof(RoutedEventHandler),
+            ownerType: typeof(MPDButton)
+        );
+
+        public event RoutedEventHandler ClickEvent
+        {
+            add { AddHandler(MPDClickEvent, value); }
+            remove { RemoveHandler(MPDClickEvent, value); }
+        }
+
+        void RaiseCustomRoutedEvent()
+        {
+            RoutedEventArgs routedEventArgs = new(routedEvent: MPDClickEvent);
+            RaiseEvent(routedEventArgs);
+        }
+
         private Action<object, RoutedEventArgs> _click = (_, __) => { };
         public Action<object, RoutedEventArgs> Click
         {
             get => _click;
-            set => _click = value;
+            set
+            {
+                _click = (_, __) =>
+                {
+                    RaiseCustomRoutedEvent();
+                    value(_, __);
+                };
+            }
         }
 
         private string _content = "";

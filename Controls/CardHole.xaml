@@ -10,6 +10,7 @@
 >
     <UserControl.Resources>
         <Style x:Key="HoleButtonStyle" TargetType="Button">
+            <Setter Property="FontSize" Value="50"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -34,19 +35,82 @@
         </Style>
     </UserControl.Resources>
 
-    <Button Style="{StaticResource HoleButtonStyle}">
-        <StackPanel Margin="0" Width="250" Height="350">
-            <Label 
-                FontSize="30"
-                HorizontalAlignment="Center"
-                Margin="0,200,0,0"
-                Foreground="{DynamicResource FG3}"
-                Content="{Binding TextContent}"
+    <Button Style="{StaticResource HoleButtonStyle}" Click="AssignCard">
+        <Grid
+            VerticalAlignment="Stretch" 
+            HorizontalAlignment="Stretch"
+        >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            
+            <local:CardControl 
+                Visibility="{
+                    Binding CardVisible, 
+                    RelativeSource={RelativeSource AncestorType=local:CardHole}
+                }"
+                FontSize="150"
             >
-                <Label.Effect>
-                    <DropShadowEffect ShadowDepth="1" BlurRadius="5" Color="#000000" />
-                </Label.Effect>
-            </Label>
-        </StackPanel>
+                <local:MPDButton
+                    TextContent="Destroy"
+                    Margin="30,10,30,0"
+                    FontSize="30"
+                    Click="MoveToGraveyard"
+                />
+                <local:MPDButton
+                    TextContent="Exile"
+                    Margin="30,10,30,0"
+                    FontSize="30"
+                    Click="MoveToExile"
+                />
+                <local:MPDButton
+                    TextContent="To Hand"
+                    Margin="30,10,30,0"
+                    FontSize="30"
+                    Click="MoveToHand"
+                />
+                <local:MPDButton
+                    TextContent="Tap"
+                    Margin="30,10,30,0"
+                    FontSize="30"
+                    Click="TapCard"
+                    Visibility="{
+                        Binding TapVisibility,
+                        RelativeSource={RelativeSource AncestorType=local:CardHole}
+                    }"
+                />
+                <local:MPDButton
+                    TextContent="UnTap"
+                    Margin="30,10,30,0"
+                    FontSize="30"
+                    Click="UntapCard"
+                    Uid="UntapBtn"
+                    Visibility="{
+                        Binding UntapVisibility,
+                        RelativeSource={RelativeSource AncestorType=local:CardHole}
+                    }"
+                />
+                <local:MPDButton
+                    TextContent="Move"
+                    Margin="30,10,30,0"
+                    FontSize="30"
+                    Click="MoveCard"
+                />
+            </local:CardControl>
+            <Image
+                IsHitTestVisible="False"
+                VerticalAlignment="Stretch"
+                Margin="25"
+                Opacity="0.4"
+                Source="/img/tap.png" 
+                Visibility="{
+                    Binding UntapVisibility,
+                    RelativeSource={RelativeSource AncestorType=local:CardHole}
+                }"
+            />
+        </Grid>
     </Button>
 </local:MPDControl>

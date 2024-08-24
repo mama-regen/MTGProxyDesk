@@ -1,10 +1,12 @@
-﻿using MTGProxyDesk.Controls;
+﻿using MTGProxyDesk.Enums;
 using MTGProxyDesk.Extensions;
 
 namespace MTGProxyDesk.Classes
 {
     public abstract class CardPile<T> where T : CardPile<T>
     {
+        protected virtual PlaySource? PlaySource { get => null; }
+
         private static readonly Lazy<T> Init = new(() => (Activator.CreateInstance(typeof(T), true) as T)!);
         public static T Instance => Init.Value;
 
@@ -20,6 +22,7 @@ namespace MTGProxyDesk.Classes
 
         // Insert single instance of card at place [index] in shuffle
         protected virtual void InsertAt(Card card, int index) {
+            card.PlaySource = PlaySource;
             card.Count = 1;
             int idx = _cards.IndexOf(card);
             if (idx == -1)
@@ -38,36 +41,26 @@ namespace MTGProxyDesk.Classes
         }
 
         // Remove all instances of card from deck
-        public virtual void RemoveCard(Card card) 
+        public virtual void RemoveCard(Card card)
         {
-            int idx = _cards.IndexOf(card);
-            Queue<int> newShuffle = new Queue<int>();
-
-            _cards.Remove(card);
-            while (_shuffle.Count > 0)
+            int sub = 0;
+            bool removed = false;
+            int idxOf = _cards.IndexOf(card);
+            if (_shuffle.Where(s => s == idxOf).Count() == 1) 
             {
-                int sIdx = _shuffle.Dequeue();
-                if (sIdx == idx) continue;
-                if (sIdx > idx) sIdx--;
-                newShuffle.Enqueue(sIdx);
+                sub = 1;
+                _cards.Remove(card);
             }
-
-            _shuffle = newShuffle;
-        }
-
-        // Remove card at place [index] in shuffle.
-        public virtual void RemoveCard(int index)
-        {
-            int idx = _shuffle.ElementAt(index);
             Queue<int> newShuffle = new Queue<int>();
-
-            if (_shuffle.Where(si => si == idx).Count() > 1) return;
-            _cards.RemoveAt(idx);
-            while (_shuffle.Count > 0)
+            while (_shuffle.Count() > 0)
             {
                 int sIdx = _shuffle.Dequeue();
-                if (sIdx == idx) continue;
-                if (sIdx > idx) sIdx--;
+                if (sIdx == idxOf && !removed)
+                {
+                    removed = true;
+                    continue;
+                }
+                if (sIdx > idxOf) sIdx -= sub;
                 newShuffle.Enqueue(sIdx);
             }
 
@@ -75,7 +68,8 @@ namespace MTGProxyDesk.Classes
         }
 
         // Add card at [count] amount to deck
-        public virtual void AddCard(Card card) { 
+        public virtual void AddCard(Card card) {
+            card.PlaySource = PlaySource;
             int cnt = card.Count;
             card.Count = 1;
             int idx = _cards.IndexOf(card);
@@ -100,8 +94,15 @@ namespace MTGProxyDesk.Classes
 
         public virtual void PlaceOnBottom(Card card) 
         {
+            card.PlaySource = PlaySource;
             if (!_cards.Contains(card)) _cards.Add(card);
             _shuffle.Enqueue(_cards.Count - 1);
+        }
+
+        public virtual void PlaceAtRandom(Card card)
+        {
+            Random rand = new Random();
+            InsertAt(card, rand.Next(1, CardCount - 1));
         }
 
         public virtual void Clear()
