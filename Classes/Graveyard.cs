@@ -1,27 +1,31 @@
-﻿using MTGProxyDesk.Controls;
-using MTGProxyDesk.Enums;
+﻿using MTGProxyDesk.Enums;
 
 namespace MTGProxyDesk.Classes
 {
-    public sealed class Exile : CardPile<Exile> { }
+    public sealed class Exile : CardPile<Exile> 
+    {
+        protected override PlaySource? PlaySource { get => Enums.PlaySource.Exile; }
+    }
 
     public sealed class Graveyard : CardPile<Graveyard>
     {
+        protected override PlaySource? PlaySource { get => Enums.PlaySource.Graveyard; }
+
         public void AddToHand(Card card)
         {
-            RemoveCard(_cards.IndexOf(card));
+            RemoveCard(card);
             Hand.Instance.AddCard(card);
         }
 
         public void ExileCard(Card card)
         {
-            RemoveCard(_cards.IndexOf(card));
+            RemoveCard(card);
             Exile.Instance.AddCard(card);
         }
 
         public void AddToDeck(Card card, DeckPlacement placement)
         {
-            RemoveCard(_cards.IndexOf(card));
+            RemoveCard(card);
             switch (placement)
             {
                 case DeckPlacement.Top:

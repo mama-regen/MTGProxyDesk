@@ -124,6 +124,11 @@ namespace MTGProxyDesk
                 write.Write(byteContent, 0, byteContent.Length);
             }
         }
+
+        public static void NotImplemented()
+        {
+            MessageBox.Show("Not yet implemented", "Not Implemented", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
 
     public class Cache<T> where T : DependencyObject

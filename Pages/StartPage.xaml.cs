@@ -42,6 +42,7 @@ namespace MTGProxyDesk
             DataContext = this;
 
             HandDisplay.CloseInstance();
+            CardViewer.CloseInstance();
 
             _backgroundImage = new BitmapImage(new Uri("pack://application:,,,/img/bg.png"));
             GetBackgroundImage();
@@ -105,7 +106,7 @@ namespace MTGProxyDesk
             {
                 LoadProgress.Value = 100 - e.ProgressPercentage;
             };
-            worker.RunWorkerCompleted += (_, __) => NavigationService.Navigate(new PlayMat());
+            worker.RunWorkerCompleted += (_, __) => NavigationService.Navigate(PlayMat.Instance);
             worker.RunWorkerAsync();
         }
 

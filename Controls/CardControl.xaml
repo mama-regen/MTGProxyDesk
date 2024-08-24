@@ -69,7 +69,7 @@
                     <Label
                         VerticalAlignment="Center"
                         HorizontalAlignment="Center"
-                        FontSize="30"
+                        FontSize="{Binding FontSize}"
                         Foreground="{DynamicResource FG1}"
                         FontFamily="{DynamicResource AppFont}"
                         Content="{Binding Path=TextContent}" 

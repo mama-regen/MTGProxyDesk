@@ -1,13 +1,14 @@
-﻿<Page x:Class="MTGProxyDesk.PlayMat"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:MTGProxyDesk"
-      xmlns:ctrls="clr-namespace:MTGProxyDesk.Controls"
-      mc:Ignorable="d" 
-      d:DesignHeight="1080" d:DesignWidth="1920"
-      Title="PlayMat"
+﻿<Page 
+    x:Class="MTGProxyDesk.PlayMat"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:MTGProxyDesk"
+    xmlns:ctrls="clr-namespace:MTGProxyDesk.Controls"
+    mc:Ignorable="d" 
+    d:DesignHeight="1080" d:DesignWidth="1920"
+    Title="Play Mat"
  >
     <Page.Resources>
         <Style x:Key="{x:Type ScrollBar}" TargetType="{x:Type ScrollBar}">
@@ -25,7 +26,6 @@
                     <Setter Property="Template" Value="{DynamicResource VerticalScrollBar}" />
                 </Trigger>
             </Style.Triggers>
-
         </Style>
 
         <SolidColorBrush x:Key="AreaDarken">
@@ -40,7 +40,11 @@
         </SolidColorBrush>
     </Page.Resources>
 
-    <Border Background="{DynamicResource DarkerGradient_Vert}">
+    <Border
+        MouseMove="CardFollowMouse"
+        MouseDown="HandleMouseClick"
+        Background="{DynamicResource DarkerGradient_Vert}"
+    >
         <Viewbox HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Border Background="{
                 Binding Path=BackgroundImage,
@@ -79,15 +83,11 @@
                         Background="{StaticResource AreaDarken}"
                     />
 
-                    <ctrls:CardHole 
-                        VerticalAlignment="Center" 
-                        HorizontalAlignment="Center"
+                    <ctrls:CardHole
                         Margin="7"
                         x:Uid="Left_0"
                     />
-                    <ctrls:CardHole 
-                        VerticalAlignment="Center" 
-                        HorizontalAlignment="Center"
+                    <ctrls:CardHole
                         Margin="7"
                         Grid.Row="1" 
                         x:Uid="Left_1"
@@ -113,7 +113,12 @@
                         Uid="ExileControl"
                         Visibility="Collapsed"
                     >
-                    
+                        <ctrls:MPDButton
+                            TextContent="View"
+                            Click="ViewExile"
+                            FontSize="40"
+                            Margin="30,0"
+                        />
                     </ctrls:CardControl>
                     <Label
                         Content="Graveyard"
@@ -136,7 +141,12 @@
                         Uid="GraveyardControl"
                         Visibility="Collapsed"
                     >
-                        
+                        <ctrls:MPDButton
+                            TextContent="View"
+                            FontSize="40"
+                            Margin="30,0"
+                            Click="ViewGraveyard"
+                        />
                     </ctrls:CardControl>
 
                     <Border 
@@ -148,26 +158,20 @@
                         Background="{StaticResource AreaDarken}"
                     />
 
-                    <ctrls:CardHole 
-                        VerticalAlignment="Center" 
-                        HorizontalAlignment="Center"
+                    <ctrls:CardHole
                         Margin="7"
                         Grid.Column="9" 
                         x:Uid="Right_0"
                     />
-                    <ctrls:CardHole 
-                        VerticalAlignment="Center" 
-                        HorizontalAlignment="Center"
+                    <ctrls:CardHole
                         Margin="7"
                         Grid.Column="9" 
                         Grid.Row="1" 
                         x:Uid="Right_1"
                     />
-                    <ctrls:CardHole 
-                        VerticalAlignment="Center" 
-                        HorizontalAlignment="Center"
+                    <ctrls:CardHole
                         Margin="9"
-                        Grid.Column="7"
+                        Grid.Column="9"
                         Grid.Row="2"
                         x:Uid="Right_2"
                     />
@@ -176,55 +180,80 @@
                         HorizontalAlignment="Center"
                         Margin="7"
                         Grid.Column="9" 
-                        Grid.Row="2"
-                        Uid="CommanderControl"
-                        Visibility="Collapsed"
-                    >
-
-                    </ctrls:CardControl>
-                    <ctrls:CardControl 
-                        VerticalAlignment="Center" 
-                        HorizontalAlignment="Center"
-                        Margin="7"
-                        Grid.Column="9" 
                         Grid.Row="3" 
                         Uid="DeckControl"
                         TextContent="Deck"
+                        FontSize="40"
                     >
                         <DockPanel Margin="30,10,30,0">
                             <ctrls:NumberPicker
                                 DockPanel.Dock="Top"
                                 OnChange="UpdateDeckDrawCount"
                                 Margin="0"
+                                Min="1"
                                 HorizontalAlignment="Center"
+                                x:Uid="DrawPicker"
                             />
                             <ctrls:MPDButton
                                 DockPanel.Dock="Bottom"
                                 TextContent="Draw"
                                 Click="DrawCard"
                                 Margin="0"
-                            />
+                                FontSize="30"
+                            >
+                                <!-- Custom Event Breaks Preview. Uncomment for sound -->
+                                <ctrls:MPDButton.Triggers>
+                                    <EventTrigger RoutedEvent="ctrls:MPDButton.ClickEvent">
+                                        <EventTrigger.Actions>
+                                            <SoundPlayerAction Source="Sounds/draw.wav"/>
+                                        </EventTrigger.Actions>
+                                    </EventTrigger>
+                                </ctrls:MPDButton.Triggers>
+                            </ctrls:MPDButton>
                         </DockPanel>
+                        
                         <DockPanel Margin="30,10,30,0">
                             <ctrls:NumberPicker
                                 DockPanel.Dock="Top"
                                 OnChange="UpdateDeckViewCount"
                                 Margin="0"
+                                Min="1"
                                 HorizontalAlignment="Center"
+                                x:Uid="ViewPicker"
                             />
                             <ctrls:MPDButton
                                 DockPanel.Dock="Bottom"
                                 TextContent="View"
-                                Click="DrawCard"
+                                Click="NextCard"
                                 Margin="0"
-                            />
+                                FontSize="30"
+                            >
+                                <!-- Custom Event Breaks Preview. Uncomment for sound -->
+                                <ctrls:MPDButton.Triggers>
+                                    <EventTrigger RoutedEvent="ctrls:MPDButton.ClickEvent">
+                                        <EventTrigger.Actions>
+                                            <SoundPlayerAction Source="Sounds/draw.wav"/>
+                                        </EventTrigger.Actions>
+                                    </EventTrigger>
+                                </ctrls:MPDButton.Triggers>
+                            </ctrls:MPDButton>
                         </DockPanel>
 
                         <ctrls:MPDButton
                             TextContent="Shuffle"
                             Click="ShuffleDeck"
                             Margin="30,10,30,0"
-                        />
+                            FontSize="30"
+                        >
+                            <!-- Custom Event Breaks Preview. Uncomment for sound -->
+                            <ctrls:MPDButton.Triggers>
+                                <EventTrigger RoutedEvent="ctrls:MPDButton.ClickEvent">
+                                    <EventTrigger.Actions>
+                                        <SoundPlayerAction Source="Sounds/shuffle.wav"/>
+                                    </EventTrigger.Actions>
+                                </EventTrigger>
+                            </ctrls:MPDButton.Triggers>
+                        </ctrls:MPDButton>
                     </ctrls:CardControl>
 
                     <Border 
@@ -261,66 +290,50 @@
                         Background="{StaticResource AreaDarken}"
                     />
 
-                    <ctrls:CardHole 
-                        VerticalAlignment="Center" 
-                        HorizontalAlignment="Center" 
-                        Margin="7"
+                    <ctrls:CardHole
+                        Margin="6"
                         Grid.Column="1"
                         Grid.Row="3"
                         x:Uid="Bottom_0"
                     />
-                    <ctrls:CardHole 
-                        VerticalAlignment="Center" 
-                        HorizontalAlignment="Center" 
-                        Margin="7"
+                    <ctrls:CardHole
+                        Margin="6"
                         Grid.Column="2" 
                         Grid.Row="3"
                         x:Uid="Bottom_1"
                     />
-                    <ctrls:CardHole 
-                        VerticalAlignment="Center" 
-                        HorizontalAlignment="Center" 
-                        Margin="7"
+                    <ctrls:CardHole
+                        Margin="6"
                         Grid.Column="3" 
                         Grid.Row="3"
                         x:Uid="Bottom_2"
                     />
-                    <ctrls:CardHole 
-                        VerticalAlignment="Center" 
-                        HorizontalAlignment="Center" 
-                        Margin="7"
+                    <ctrls:CardHole
+                        Margin="6"
                         Grid.Column="4"
                         Grid.Row="3"
                         x:Uid="Bottom_3"
                     />
-                    <ctrls:CardHole 
-                        VerticalAlignment="Center" 
-                        HorizontalAlignment="Center" 
-                        Margin="7"
+                    <ctrls:CardHole
+                        Margin="6"
                         Grid.Column="5"
                         Grid.Row="3"
                         x:Uid="Bottom_4"
                     />
-                    <ctrls:CardHole 
-                        VerticalAlignment="Center" 
-                        HorizontalAlignment="Center" 
-                        Margin="7"
+                    <ctrls:CardHole
+                        Margin="6"
                         Grid.Column="6"
                         Grid.Row="3"
                         x:Uid="Bottom_5"
                     />
-                    <ctrls:CardHole 
-                        VerticalAlignment="Center" 
-                        HorizontalAlignment="Center" 
-                        Margin="7"
+                    <ctrls:CardHole
+                        Margin="6"
                         Grid.Column="7"
                         Grid.Row="3"
                         x:Uid="Bottom_6"
                     />
-                    <ctrls:CardHole 
-                        VerticalAlignment="Center" 
-                        HorizontalAlignment="Center" 
-                        Margin="7"
+                    <ctrls:CardHole
+                        Margin="6"
                         Grid.Column="8" 
                         Grid.Row="3"
                         x:Uid="Bottom_7"
@@ -337,11 +350,38 @@
                         CornerRadius="6"
                         Visibility="{Binding ShowCardVisibility, UpdateSourceTrigger=PropertyChanged}" 
                     >
-                        <Border 
-                            Margin="20"
-                            Background="{Binding ShowCard, UpdateSourceTrigger=PropertyChanged}"
-                        ></Border>
+                        <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                            <Button
+                                Background="Transparent"
+                                DockPanel.Dock="Top"
+                                FontSize="14"
+                                Content=" Close "
+                                HorizontalContentAlignment="Right"
+                                HorizontalAlignment="Right"
+                                Foreground="White"
+                                Click="HideShowCard"
+                                BorderThickness="0"
+                            />
+                            <Border 
+                                Margin="20,0,20,20"
+                                DockPanel.Dock="Bottom"
+                                Background="{Binding ShowCard, UpdateSourceTrigger=PropertyChanged}"
+                            ></Border>
+                        </DockPanel>
                     </Border>
+                    <Canvas 
+                        IsHitTestVisible="False"
+                        Grid.ColumnSpan="10"
+                        Grid.RowSpan="4"
+                        Name="CardCanvas"
+                    >
+                        <ctrls:CardControl
+                            Width="100"
+                            Height="140"
+                            Uid="HeldCard"
+                            Visibility="Collapsed"
+                        />
+                    </Canvas>
                 </Grid>
             </Border>
         </Viewbox>

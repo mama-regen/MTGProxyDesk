@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using MTGProxyDesk.Enums;
+using System.ComponentModel;
 using System.IO;
 using System.Windows.Media.Imaging;
 
@@ -6,6 +7,8 @@ namespace MTGProxyDesk.Classes
 {
     public sealed class MagicDeck : CardPile<MagicDeck>
     {
+        protected override PlaySource? PlaySource { get => Enums.PlaySource.Deck; }
+
         private string? _filePath;
         public string FilePath
         {
@@ -100,9 +103,14 @@ namespace MTGProxyDesk.Classes
 
                     Card card = new Card(id, imgPath, 1, anyAmount);
 
-                    if (isCommander && Commander == null) Commander = card;
+                    if (isCommander && Commander == null)
+                    {
+                        card.PlaySource = Enums.PlaySource.Command;
+                        Commander = card;
+                    }
                     else
                     {
+                        card.PlaySource = Enums.PlaySource.Deck;
                         _cards.Add(card);
                         for (int i = 0; i < count; i++) _shuffle.Enqueue(Cards.Count() - 1);
                     }
@@ -120,14 +128,14 @@ namespace MTGProxyDesk.Classes
             return Cards[nextIdx]!;
         }
 
-        public List<Card> Next(int howMany = 1)
+        public Card[] Next(int howMany = 1)
         {
             List<Card> result = new List<Card>();
             for (int i = 0; i < Math.Min(howMany, _shuffle.Count); i++)
             {
                 result.Add(Cards[_shuffle.ElementAt(i)]);
             }
-            return result;
+            return result.ToArray();
         }
 
         public void Save(string filePath)

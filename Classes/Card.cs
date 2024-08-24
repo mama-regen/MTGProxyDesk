@@ -1,4 +1,5 @@
 ﻿using MTGProxyDesk.Constants;
+using MTGProxyDesk.Enums;
 using MTGProxyDesk.Extensions;
 using Newtonsoft.Json;
 using System.IO;
@@ -178,6 +179,7 @@ namespace MTGProxyDesk
         public string Id { get; private set; }
         public BitmapImage Image { get; private set; }
         public bool AllowAnyAmount { get; private set; } = false;
+        public PlaySource? PlaySource { get; set; } = null;
         private int _Count = 1;
         public int Count
         {

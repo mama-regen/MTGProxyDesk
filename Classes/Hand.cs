@@ -1,10 +1,13 @@
 ﻿using MTGProxyDesk.Controls;
 using MTGProxyDesk.Enums;
+using System.Windows;
 
 namespace MTGProxyDesk.Classes
 {
     public sealed class Hand : CardPile<Hand>
     {
+        protected override PlaySource? PlaySource { get => Enums.PlaySource.Hand; }
+
         public void DiscardCard(Card card)
         {
             card.Count = 1;
