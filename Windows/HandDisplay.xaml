@@ -54,15 +54,6 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="1*"/>
                     </Grid.RowDefinitions>
-
-                    <Viewbox Grid.Column="0"></Viewbox>
-                    <Viewbox Grid.Column="1"></Viewbox>
-                    <Viewbox Grid.Column="2"></Viewbox>
-                    <Viewbox Grid.Column="3"></Viewbox>
-                    <Viewbox Grid.Column="4"></Viewbox>
-                    <Viewbox Grid.Column="5"></Viewbox>
-                    <Viewbox Grid.Column="6"></Viewbox>
-                    <Viewbox Grid.Column="7"></Viewbox>
                 </Grid>
             </ScrollViewer>
         </DockPanel>

@@ -19,6 +19,11 @@ namespace MTGProxyDesk.Classes
             ((HandDisplay)Display!).DisplayHand();
         }
 
+        public void AddCardNoDisplay(int index, int amount = 1)
+        {
+            base.AddCard(index, amount);
+        }
+
         public override void AddCard(int index, int amount = 1)
         {
             base.AddCard(index, amount);

@@ -121,8 +121,9 @@ namespace MTGProxyDesk
         {
             for (int i = 0; i < Math.Min(drawNmb, Deck.CardCount); i++)
             {
-                Hand.AddCard(Deck.Draw());
+                Hand.AddCardNoDisplay(Deck.Draw());
             }
+            ((HandDisplay)Hand.Display!).DisplayHand();
             HandDisplay.BringToFront();
             drawNmb = 1;
             DrawPicker.Value = "1";
@@ -319,7 +320,8 @@ namespace MTGProxyDesk
             for (int _ = 0; _ < 3; _++) AddMainRow(false);
             if (IsCommander) CommanderControl.Card = Deck.Commander;
 
-            for (int i = 0; i < 7; i++) Hand.AddCard(Deck.Draw());
+            for (int i = 0; i < 7; i++) Hand.AddCardNoDisplay(Deck.Draw());
+            ((HandDisplay)Hand.Display!).DisplayHand();
             CardViewer initialView = new CardViewer(Hand);
             initialView.ShowCards(Hand.CardOrder, true);
 
