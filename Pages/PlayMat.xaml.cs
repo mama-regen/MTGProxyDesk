@@ -234,6 +234,15 @@ namespace MTGProxyDesk
 
         public void Quit(object sender, RoutedEventArgs e)
         {
+            foreach (Window window in Application.Current.Windows)
+            {
+                if (window is BaseWindow && !(window is MainWindow))
+                {
+                    ((BaseWindow)window).CanClose = true;
+                    window.Close();
+                }
+            }
+
             StartPage start = new StartPage();
             NavigationService.Navigate(start);
         }
