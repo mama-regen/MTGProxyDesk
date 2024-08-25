@@ -1,116 +1,110 @@
 ﻿using MTGProxyDesk.Enums;
 using MTGProxyDesk.Extensions;
+using MTGProxyDesk.Windows;
 
 namespace MTGProxyDesk.Classes
 {
-    public abstract class CardPile<T> where T : CardPile<T>
+    public abstract class CardPile
     {
-        protected virtual PlaySource? PlaySource { get => null; }
+        public virtual PlayMat? Parent { get; protected set; }
 
-        private static readonly Lazy<T> Init = new(() => (Activator.CreateInstance(typeof(T), true) as T)!);
-        public static T Instance => Init.Value;
+        public virtual BaseWindow? Display { get; private set; } = null;
 
-        protected List<Card> _cards = new List<Card>();
-        public Card[] Cards { get => _cards.ToArray(); }
-
-        protected Queue<int> _shuffle = new Queue<int>();
-        public Card[] CardShuffle { get => _shuffle.Select(i => _cards[i]).ToArray(); }
-
-        public Card? CardBuffer { get; set; }
-        
-        public virtual int CardCount { get => _shuffle.Count; }
-
-        // Insert single instance of card at place [index] in shuffle
-        protected virtual void InsertAt(Card card, int index) {
-            card.PlaySource = PlaySource;
-            card.Count = 1;
-            int idx = _cards.IndexOf(card);
-            if (idx == -1)
+        public Queue<int> CardOrder { get; protected set; } = new Queue<int>();
+        public Card[] Cards
+        {
+            get => CardOrder.Select((i) =>
             {
-                _cards.Add(card);
-                idx = _cards.Count - 1;
-            }
+                Card card = CardStock.Get(i)!;
+                return card;
+            }).ToArray();
+        }
+        
+        public virtual int CardCount { get => CardOrder.Count; }
 
-            Queue<int> newShuffle = new Queue<int>();
-
-            for (int i = 0; i < index; i++) newShuffle.Enqueue(_shuffle.Dequeue());
-            newShuffle.Enqueue(idx);
-            while (_shuffle.Count > 0) newShuffle.Enqueue(_shuffle.Dequeue());
-
-            _shuffle = newShuffle;
+        public CardPile(PlayMat? parent = null, Type? displayType = null)
+        {
+            Parent = parent;
+            if (displayType != null) Display = (BaseWindow)Activator.CreateInstance(displayType, this)!;
         }
 
-        // Remove all instances of card from deck
-        public virtual void RemoveCard(Card card)
-        {
-            int sub = 0;
-            bool removed = false;
-            int idxOf = _cards.IndexOf(card);
-            if (_shuffle.Where(s => s == idxOf).Count() == 1) 
-            {
-                sub = 1;
-                _cards.Remove(card);
-            }
+        protected virtual void InsertAt(int index, int where) {
             Queue<int> newShuffle = new Queue<int>();
-            while (_shuffle.Count() > 0)
+
+            for (int i = 0; i < where; i++) newShuffle.Enqueue(CardOrder.Dequeue());
+            newShuffle.Enqueue(index);
+            while (CardOrder.Count > 0) newShuffle.Enqueue(CardOrder.Dequeue());
+
+            CardOrder = newShuffle;
+        }
+
+        protected virtual void InsertAt(Card card, int where)
+        {
+            InsertAt(CardStock.IndexOf(card), where);
+        }
+
+        public virtual void RemoveCard(int index, bool all = false)
+        {
+            Queue<int> newShuffle = new Queue<int>();
+
+            bool removed = false;
+            while (CardOrder.Count > 0)
             {
-                int sIdx = _shuffle.Dequeue();
-                if (sIdx == idxOf && !removed)
+                int idx = CardOrder.Dequeue();
+                if ((!all || !removed) && idx == index)
                 {
                     removed = true;
                     continue;
                 }
-                if (sIdx > idxOf) sIdx -= sub;
-                newShuffle.Enqueue(sIdx);
+                newShuffle.Enqueue(idx);
             }
-
-            _shuffle = newShuffle;
+            CardOrder = newShuffle;
         }
 
-        // Add card at [count] amount to deck
+        public virtual void RemoveCard(Card card, bool all = false)
+        {
+            RemoveCard(CardStock.IndexOf(card), all);
+        }
+
+        public virtual void AddCard(int index, int amount = 1)
+        {
+            for (int i = 0; i < amount; i++) CardOrder.Enqueue(index);
+        }
+
         public virtual void AddCard(Card card) {
-            card.PlaySource = PlaySource;
-            int cnt = card.Count;
+            int count = card.Count;
             card.Count = 1;
-            int idx = _cards.IndexOf(card);
-            
-            if (idx == -1)
-            {
-                _cards.Add(card);
-                idx = _cards.Count - 1;
-            }
 
-            for (int i = 0; i < cnt; i++) _shuffle.Enqueue(idx);
+            int index = CardStock.IndexOf(card);
+            if (index == -1) CardStock.Add(card);
+            index = CardStock.IndexOf(card);
+
+            AddCard(index, count);
         }
 
-        // First index of card in shuffle
-        public virtual int IndexOf(Card card) 
+        public virtual int IndexOf(int index) 
         {
-            int idx = _cards.IndexOf(card);
-            return _shuffle.IndexOf(idx);
+            return CardOrder.IndexOf(index);
         }
 
-        public virtual void PlaceOnTop(Card card) { InsertAt(card, 0); }
+        public virtual void PlaceOnTop(int index) { InsertAt(index, 0); }
 
-        public virtual void PlaceOnBottom(Card card) 
-        {
-            card.PlaySource = PlaySource;
-            if (!_cards.Contains(card)) _cards.Add(card);
-            _shuffle.Enqueue(_cards.Count - 1);
-        }
+        public virtual void PlaceOnTop(Card card) { PlaceOnTop(CardStock.IndexOf(card)); }
 
-        public virtual void PlaceAtRandom(Card card)
+        public virtual void PlaceOnBottom(int index) { CardOrder.Enqueue(index); }
+
+        public virtual void PlaceOnBottom(Card card) { PlaceOnBottom(CardStock.IndexOf(card)); }
+
+        public virtual void PlaceAtRandom(int index)
         {
             Random rand = new Random();
-            InsertAt(card, rand.Next(1, CardCount - 1));
+            InsertAt(index, rand.Next(1, CardOrder.Count - 1));
         }
 
-        public virtual void Clear()
-        {
-            _cards.Clear();
-            _shuffle.Clear();
-        }
+        public virtual void PlaceAtRandom(Card card) { PlaceAtRandom(CardStock.IndexOf(card)); }
 
-        public void Shuffle() { _shuffle = _shuffle.Shuffle(); }
+        public virtual void Clear() { CardOrder.Clear(); }
+
+        public virtual void Shuffle() { CardOrder = CardOrder.Shuffle(); }
     }
 }

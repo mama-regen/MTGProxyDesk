@@ -3,18 +3,17 @@ using System.Windows.Controls;
 using MTGProxyDesk.Classes;
 using MTGProxyDesk.Controls;
 
-namespace MTGProxyDesk
+namespace MTGProxyDesk.Windows
 {    
-    public partial class CardSearch : Window
+    public partial class CardSearch : BaseWindow
     {
-        private Card? resultCard;
-        private MagicDeck magicDeck;
+        private int? resultCard = null;
+        public bool tokens { get; set; } = false;
 
         public CardSearch()
         {
             InitializeComponent();
             DataContext = this;
-            magicDeck = MagicDeck.Instance;
         }
 
         public async void SearchForCard(object sender, RoutedEventArgs e)
@@ -28,14 +27,14 @@ namespace MTGProxyDesk
             ((Label)SearchText.Child).Content = "SEARCHING...";
             SearchText.Visibility = Visibility.Visible;
             string searchName = CardSearchText.Text;
-            resultCard = await Card.SearchCard(searchName);
+            resultCard = await (tokens ? Card.SearchToken(searchName) : Card.SearchCard(searchName));
             if (resultCard == null)
             {
                 ((Label)SearchText.Child).Content = "CARD NOT FOUND!";
                 return;
             }
 
-            cardButton.Card = resultCard;
+            cardButton.Card = resultCard!;
             SearchText.Visibility = Visibility.Collapsed;
 
             InitialSearch.CtrlVisibility = Visibility.Collapsed;
@@ -45,7 +44,7 @@ namespace MTGProxyDesk
 
         public void SelectCard(object sender, RoutedEventArgs e)
         {
-            magicDeck.CardBuffer = resultCard!;
+            HeldCard.Set(resultCard!.Value, Enums.PlaySource.Deck);
             Close();
         }
     }

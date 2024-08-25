@@ -5,6 +5,7 @@ using MTGProxyDesk.Controls;
 using MTGProxyDesk.Extensions;
 using System.ComponentModel;
 using MTGProxyDesk.Classes;
+using MTGProxyDesk.Windows;
 
 namespace MTGProxyDesk
 {
@@ -25,11 +26,11 @@ namespace MTGProxyDesk
 
         public virtual event PropertyChangedEventHandler? PropertyChanged = delegate { };
 
-        public NewDeckPage()
+        public NewDeckPage(MagicDeck? deck = null)
         {
             InitializeComponent();
             DataContext = this;
-            _Deck = MagicDeck.Instance;
+            _Deck = deck ?? new MagicDeck();
             Application.Current.MainWindow.WindowState = WindowState.Maximized;
             LoadDeck();
         }
@@ -52,7 +53,8 @@ namespace MTGProxyDesk
                 {
                     foreach (CardControl ctrl in row.Children.OfType<CardControl>())
                     {
-                        if (ctrl.Card == null || ctrl.Card.AllowAnyAmount) continue;
+                        Card? ctrlCard = CardStock.Get(ctrl.Card);
+                        if (ctrlCard == null || ctrlCard.AllowAnyAmount) continue;
                         NumberPicker counter = ctrl.Children.OfType<NumberPicker>().First();
                         counter.Value = "1";
                         counter.CtrlVisibility = Visibility.Collapsed;
@@ -84,13 +86,18 @@ namespace MTGProxyDesk
         public async void AddCard(object sender, RoutedEventArgs e)
         {
             CardControl cardCtrl = ((DependencyObject)sender).GetAncestorOfType<CardControl>()!;
+            Card? ctrlCard = CardStock.Get(cardCtrl.Card);
 
             cardCtrl.HideMenu();
-            Card selection = await GetCardSelection();
-            if (selection == null) return;
+
+            int? selection = await GetCardSelection();
+            Card? cardSel = CardStock.Get(selection);
+            if (cardSel == null) return;
+
             CardControl? exists = DeckContainer.GetChildrenOfType<CardControl>()!.Where(
-                ctrl => ctrl.Card != null && ctrl.Card.Id == selection.Id
+                ctrl => ctrlCard != null && ctrlCard.Id == cardSel.Id
             ).FirstOrDefault();
+
             if (exists != null)
             {
                 exists.Children.OfType<NumberPicker>().First().Add();
@@ -107,7 +114,8 @@ namespace MTGProxyDesk
             rmvBtn.CtrlVisibility = Visibility.Visible;
 
             NumberPicker counter = cardCtrl.Children.OfType<NumberPicker>().First();
-            if (Commander.Card == null || cardCtrl.Card.AllowAnyAmount)
+            
+            if (Commander.Card == null || (ctrlCard != null && ctrlCard.AllowAnyAmount))
             {
                 counter.CtrlVisibility = Visibility.Visible;
                 
@@ -115,7 +123,7 @@ namespace MTGProxyDesk
             {
                 counter.CtrlVisibility = Visibility.Collapsed;
             }
-            counter.Max = selection.AllowAnyAmount ? int.MaxValue : 4;
+            counter.Max = cardSel.AllowAnyAmount ? int.MaxValue : 4;
 
             Grid container = cardCtrl.GetAncestorOfType<Grid>()!;
             Grid newContainer;
@@ -171,7 +179,7 @@ namespace MTGProxyDesk
         public void UpdateCardCount(int value, object sender)
         {
             CardControl parent = ((DependencyObject)sender).GetAncestorOfType<CardControl>()!;
-            Card? card = parent.Card;
+            Card? card = CardStock.Get(parent.Card);
             if (card == null) return;
             card.Count = value;
 
@@ -259,12 +267,14 @@ namespace MTGProxyDesk
                 return btn;
             };
 
+            Card? ctrlCard = cardCtrl.Card == null ? null : CardStock.Get(cardCtrl.Card.Value);
+
             MPDButton addBtn = MakeButton("Add", 1, false, AddCard);
             MPDButton rmvBtn = MakeButton("Remove", 2, true, RemoveCard);
             NumberPicker nmbPck = new NumberPicker();
             nmbPck.HorizontalAlignment = HorizontalAlignment.Center;
             nmbPck.Min = 1;
-            nmbPck.Max = (cardCtrl.Card == null || !cardCtrl.Card.AllowAnyAmount) ? 4 : int.MaxValue;
+            nmbPck.Max = (ctrlCard == null || !ctrlCard.AllowAnyAmount) ? 4 : int.MaxValue;
             nmbPck.OnChange = UpdateCardCount;
             nmbPck.CtrlVisibility = Visibility.Collapsed;
 
@@ -273,18 +283,20 @@ namespace MTGProxyDesk
             cardCtrl.Children.Add(rmvBtn);
         }
 
-        private async Task<Card> GetCardSelection()
+        private async Task<int> GetCardSelection()
         {
             CardSearch search = new CardSearch();
-            _Deck.CardBuffer = null;
+            HeldCard.Set(null);
             search.Show();
 
             return await Task.Run(async () =>
             {
-                while (_Deck.CardBuffer == null) await Task.Delay(100);
-                Card card = _Deck.CardBuffer;
-                _Deck.CardBuffer = null;
-                return card;
+                while (HeldCard.Get() == null) await Task.Delay(100);
+                Card card = HeldCard.Get()!;
+                HeldCard.Set(null);
+
+                CardStock.Add(card);
+                return CardStock.IndexOf(card);
             });
         }
 
@@ -294,9 +306,9 @@ namespace MTGProxyDesk
 
             int cardTotal = 0;
 
-            if (_Deck.Commander != null)
+            Commander.Card = _Deck.Commander;
+            if (Commander.Card != null)
             {
-                Commander.Card = _Deck.Commander;
                 MPDButton addBtn = GetAddButton(Commander);
                 MPDButton rmvBtn = GetRemoveButton(Commander);
 
@@ -306,34 +318,32 @@ namespace MTGProxyDesk
                 cardTotal++;
             }
 
-            int cardCount = _Deck.CardCount;
-            int rows = (int)Math.Ceiling((cardCount + 1) / 7.0);
+            int rows = (int)Math.Ceiling((_Deck.CardCount + 1) / 7.0);
             Grid[] gridRows = new Grid[rows];
 
-            foreach (Grid grid in DeckContainer.Children.OfType<Grid>().ToArray())
-            {
-                DeckContainer.Children.Remove(grid);
-            }
+            DeckContainer.Children.Clear();
 
             for (int r = 0; r < rows; r++) gridRows[r] = NewGridRow();
 
             int col = 0;
             int row = 0;
-            foreach (Card card in _Deck.CardsWithCount)
+            foreach (KeyValuePair<int, int> cardCount in _Deck.CardCounts)
             {
-                CardControl newCard = NewCardControl();
-                newCard.Card = card;
-                Grid.SetColumn(newCard, col);
-                gridRows[row].Children.Add(newCard);
+                CardControl newCtrl = NewCardControl();
+                newCtrl.Card = cardCount.Key;
+                newCtrl.Count = cardCount.Value;
+                Grid.SetColumn(newCtrl, col);
+                gridRows[row].Children.Add(newCtrl);
 
-                MPDButton addBtn = GetAddButton(newCard);
-                MPDButton rmvBtn = GetRemoveButton(newCard);
+                MPDButton addBtn = GetAddButton(newCtrl);
+                MPDButton rmvBtn = GetRemoveButton(newCtrl);
 
                 addBtn.CtrlVisibility = Visibility.Collapsed;
                 rmvBtn.CtrlVisibility = Visibility.Visible;
 
-                NumberPicker counter = newCard.Children.OfType<NumberPicker>().First();
-                if (Commander.Card == null || newCard.Card.AllowAnyAmount)
+                NumberPicker counter = newCtrl.Children.OfType<NumberPicker>().First();
+                Card? newCard = CardStock.Get(newCtrl.Card);
+                if (Commander.Card == null || (newCard != null && newCard.AllowAnyAmount))
                 {
                     counter.CtrlVisibility = Visibility.Visible;
                 }
@@ -341,9 +351,9 @@ namespace MTGProxyDesk
                 {
                     counter.CtrlVisibility = Visibility.Collapsed;
                 }
-                counter.Max = card.AllowAnyAmount ? int.MaxValue : 4;
-                counter.Value = card.Count.ToString();
-                cardTotal += card.Count;
+                counter.Max = (newCard != null && newCard.AllowAnyAmount) ? int.MaxValue : 4;
+                counter.Value = cardCount.Value.ToString();
+                cardTotal += cardCount.Value;
 
                 if (col > (col + 1) % 7) row++;
                 col = (col + 1) % 7;
@@ -385,7 +395,7 @@ namespace MTGProxyDesk
             foreach (CardControl cardCtrl in DeckContainer.GetChildrenOfType<CardControl>())
             {
                 if (cardCtrl.Card == null) continue;
-                _Deck.AddCard(cardCtrl.Card);
+                _Deck.AddCard(cardCtrl.Card.Value, cardCtrl.Count);
             }
 
             SaveFileDialog sfd = new SaveFileDialog();

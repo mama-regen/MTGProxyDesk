@@ -69,5 +69,15 @@ namespace MTGProxyDesk.Extensions
             Card copy = new Card(orig.Id, path, newCount == null ? orig.Count : newCount.Value, orig.AllowAnyAmount);
             return copy;
         }
+
+        public static bool HasProperty<T>(this T obj, string prop) where T : class
+        {
+            return typeof(T).GetProperty(prop) == null;
+        }
+
+        public static T GetProperty<T>(this object obj, string prop)
+        {
+            return (T)obj.GetType().GetProperty(prop)!.GetValue(obj)!;
+        }
     }
 }

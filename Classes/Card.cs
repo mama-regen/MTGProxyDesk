@@ -1,4 +1,5 @@
-﻿using MTGProxyDesk.Constants;
+﻿using MTGProxyDesk.Classes;
+using MTGProxyDesk.Constants;
 using MTGProxyDesk.Enums;
 using MTGProxyDesk.Extensions;
 using Newtonsoft.Json;
@@ -179,7 +180,7 @@ namespace MTGProxyDesk
         public string Id { get; private set; }
         public BitmapImage Image { get; private set; }
         public bool AllowAnyAmount { get; private set; } = false;
-        public PlaySource? PlaySource { get; set; } = null;
+        public bool IsToken { get; private set; } = false;
         private int _Count = 1;
         public int Count
         {
@@ -195,46 +196,57 @@ namespace MTGProxyDesk
             if (card.Image_Uris.Png != null) ext = ".png";
             string filepath = Path.Join(Helper.TempFolder, card.Id + ext);
 
-            Image = Helper.DownloadImage(new Uri(card.Image_Uris.Png ?? card.Image_Uris.Large ?? card.Image_Uris.Normal!), filepath);
+            Image = Helper.DownloadImage(new Uri(TryGetImageUrl(card)), filepath);
             AllowAnyAmount = card.Type_Line.ToLower().Contains("basic land") || card.Oracle_Text.ToLower().Contains("a deck can have any number of cards named " + card.Name.ToLower());
+            IsToken = card.Type_Line.ToLower().Contains("token");
         }
 
-        public Card(string id, string localImagePath, int count, bool anyAmount = false)
+        public Card(string id, string localImagePath, int count, bool anyAmount = false, bool isToken = false)
         {
             Id = id;
             Image = Helper.LoadBitmap(localImagePath);
             Count = count;
             AllowAnyAmount = anyAmount;
+            IsToken = isToken;
         }
 
-        public static async Task<Card?> SearchCard(string name)
+        public static async Task<int?> SearchCard(string name)
         {
             string? response = await MakeRequest("named?include_extras=false&fuzzy=" + name.Replace(" ", "+"));
             if (response == null) return null;
-            return new Card(JsonConvert.DeserializeObject<_Card>(response));
+            _Card? cardResponse = JsonConvert.DeserializeObject<_Card>(response);
+            if (cardResponse == null || TryGetImageUrl(cardResponse) == "") return null;
+            Card card = new Card(cardResponse);
+            return CardStock.Add(card);
         }
 
-        public static async Task<Card?> SearchToken(string name)
+        public static async Task<int?> SearchToken(string name)
         {
             string? response = await MakeRequest("search?include_extras=true&q=t%3Atoken%20" + name.Replace(" ", "+"));
             if (response == null) return null;
-            IEnumerable<_Card> filtered = JsonConvert.DeserializeObject<_CardSearch>(response).Data.Where(c => c.Name.ToLower() == name.ToLower());
+            IEnumerable<_Card> filtered = JsonConvert.DeserializeObject<_CardSearch>(response)!.Data.Where(c => c.Name.ToLower() == name.ToLower());
             if (filtered.Count() == 0) return null;
-            return new Card(filtered.First());
+            return CardStock.Add(new Card(filtered.First()));
         }
 
-        public static async Task<Card[]> SearchTokens(string name)
+        public static async Task<int[]> SearchTokens(string name)
         {
             string? response = await MakeRequest("search?include_extras=true&q=t%3Atoken%20" + name.Replace(" ", "+"));
-            if (response == null) return new Card[0];
-            return JsonConvert.DeserializeObject<_CardSearch>(response).Data.Select(c => new Card(c)).ToArray();
+            if (response == null) return new int[0];
+            List<int> result = new List<int>();
+            foreach (Card card in JsonConvert.DeserializeObject<_CardSearch>(response)!.Data.Select(c => new Card(c)))
+            {
+                result.Add(CardStock.Add(card));
+            }
+            return result.ToArray();
         }
 
-        public static async Task<Card?> GetCard(string id)
+        public static async Task<int?> GetCard(string id)
         {
             string? response = await MakeRequest(id);
             if (response == null) return null;
-            return new Card(JsonConvert.DeserializeObject<_Card>(response));
+            Card card = new Card(JsonConvert.DeserializeObject<_Card>(response)!);
+            return CardStock.Add(card);
         }
 
         public static async Task<(BitmapImage, string)?> GetRandomArt(string fileName = "temp") { return await GetRandomArt(fileName,5); }
@@ -247,7 +259,7 @@ namespace MTGProxyDesk
                 return await GetRandomArt(fileName, attempts - 1);
             }
             Random rand = new Random();
-            _Card[] data = JsonConvert.DeserializeObject<_CardSearch>(response).Data;
+            _Card[] data = JsonConvert.DeserializeObject<_CardSearch>(response)!.Data;
 
             Func<_Card?> pick = () =>
             {
@@ -262,6 +274,11 @@ namespace MTGProxyDesk
                 Helper.DownloadImage(new Uri(chosen.Image_Uris!.Art_Crop!), Path.Join(Helper.TempFolder, fileName + ".png")),
                 chosen.Artist
             );
+        }
+
+        private static string TryGetImageUrl(_Card card)
+        {
+            return card.Image_Uris.Png ?? card.Image_Uris.Large ?? card.Image_Uris.Normal ?? "";
         }
 
         private static async Task<string?> MakeRequest(string query)

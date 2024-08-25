@@ -38,6 +38,10 @@
                 </Color>
             </SolidColorBrush.Color>
         </SolidColorBrush>
+        <LinearGradientBrush x:Key="ButtonBorder" StartPoint="0,0" EndPoint="0,1" Opacity="0.25">
+            <GradientStop Color="{DynamicResource BG3_Color}" Offset="0.0"  />
+            <GradientStop Color="{DynamicResource FG2_Color}" Offset="1.0"  />
+        </LinearGradientBrush>
     </Page.Resources>
 
     <Border
@@ -54,6 +58,7 @@
                 <Grid
                     Width="1920"
                     Height="1080"
+                    ClipToBounds="True"
                 >
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*"/>
@@ -66,6 +71,7 @@
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="0.1*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="1*"/>
@@ -83,11 +89,17 @@
                         Background="{StaticResource AreaDarken}"
                     />
 
-                    <ctrls:CardHole
+                    <ctrls:CardControl
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        DefaultImageOnEmpty="False"
                         Margin="7"
                         x:Uid="Left_0"
                     />
-                    <ctrls:CardHole
+                    <ctrls:CardControl
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        DefaultImageOnEmpty="False"
                         Margin="7"
                         Grid.Row="1" 
                         x:Uid="Left_1"
@@ -158,23 +170,39 @@
                         Background="{StaticResource AreaDarken}"
                     />
 
-                    <ctrls:CardHole
+                    <ctrls:CardControl
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        DefaultImageOnEmpty="False"
                         Margin="7"
                         Grid.Column="9" 
                         x:Uid="Right_0"
                     />
-                    <ctrls:CardHole
+                    <ctrls:CardControl
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        DefaultImageOnEmpty="False"
                         Margin="7"
                         Grid.Column="9" 
                         Grid.Row="1" 
                         x:Uid="Right_1"
                     />
-                    <ctrls:CardHole
+                    <ctrls:CardControl
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        DefaultImageOnEmpty="False"
                         Margin="9"
                         Grid.Column="9"
                         Grid.Row="2"
-                        x:Uid="Right_2"
-                    />
+                        x:Uid="CommanderControl"
+                    >
+                        <ctrls:MPDButton
+                            TextContent="Play"
+                            FontSize="40"
+                            Margin="30,0"
+                            Click="PlayCommander"
+                        />
+                    </ctrls:CardControl>
                     <ctrls:CardControl 
                         VerticalAlignment="Center" 
                         HorizontalAlignment="Center"
@@ -290,49 +318,73 @@
                         Background="{StaticResource AreaDarken}"
                     />
 
-                    <ctrls:CardHole
+                    <ctrls:CardControl
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        DefaultImageOnEmpty="False"
                         Margin="6"
                         Grid.Column="1"
                         Grid.Row="3"
                         x:Uid="Bottom_0"
                     />
-                    <ctrls:CardHole
+                    <ctrls:CardControl
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        DefaultImageOnEmpty="False"
                         Margin="6"
                         Grid.Column="2" 
                         Grid.Row="3"
                         x:Uid="Bottom_1"
                     />
-                    <ctrls:CardHole
+                    <ctrls:CardControl
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        DefaultImageOnEmpty="False"
                         Margin="6"
                         Grid.Column="3" 
                         Grid.Row="3"
                         x:Uid="Bottom_2"
                     />
-                    <ctrls:CardHole
+                    <ctrls:CardControl
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        DefaultImageOnEmpty="False"
                         Margin="6"
                         Grid.Column="4"
                         Grid.Row="3"
                         x:Uid="Bottom_3"
                     />
-                    <ctrls:CardHole
+                    <ctrls:CardControl
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        DefaultImageOnEmpty="False"
                         Margin="6"
                         Grid.Column="5"
                         Grid.Row="3"
                         x:Uid="Bottom_4"
                     />
-                    <ctrls:CardHole
+                    <ctrls:CardControl
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        DefaultImageOnEmpty="False"
                         Margin="6"
                         Grid.Column="6"
                         Grid.Row="3"
                         x:Uid="Bottom_5"
                     />
-                    <ctrls:CardHole
+                    <ctrls:CardControl
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        DefaultImageOnEmpty="False"
                         Margin="6"
                         Grid.Column="7"
                         Grid.Row="3"
                         x:Uid="Bottom_6"
                     />
-                    <ctrls:CardHole
+                    <ctrls:CardControl
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Center"
+                        DefaultImageOnEmpty="False"
                         Margin="6"
                         Grid.Column="8" 
                         Grid.Row="3"
@@ -374,14 +426,195 @@
                         Grid.ColumnSpan="10"
                         Grid.RowSpan="4"
                         Name="CardCanvas"
+                    />
+                    <Border
+                        Grid.Column="9"
+                        Grid.RowSpan="4"
+                        Grid.ColumnSpan="2"
+                        Background="{DynamicResource WUBRG_MTG_Diag}"
+                        MouseEnter="ShowMenu"
+                        MouseLeave="HideMenu"
+                        BorderBrush="{DynamicResource WUBRG_Diag}"
+                        BorderThickness="2,0,0,0"
                     >
-                        <ctrls:CardControl
-                            Width="100"
-                            Height="140"
-                            Uid="HeldCard"
-                            Visibility="Collapsed"
-                        />
-                    </Canvas>
+                        <Border.RenderTransform>
+                            <TranslateTransform X="190"/>
+                        </Border.RenderTransform>
+
+                        <Grid Margin="-2,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.125*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="0.125*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="0.5*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="1*"/>
+                            </Grid.RowDefinitions>
+
+                            <Label Content="&#x25C0;" RenderTransformOrigin="0.5,0.5">
+                                <Label.RenderTransform>
+                                    <RotateTransform Angle="0"/>
+                                </Label.RenderTransform>
+                            </Label>
+
+                            <Rectangle 
+                                Grid.Column="1"
+                                Height="2"
+                                Margin="0,0,0,-1"
+                                VerticalAlignment="Bottom"
+                                HorizontalAlignment="Stretch"
+                                Fill="{StaticResource ButtonBorder}"
+                            />
+                            <ctrls:MPDButton
+                                Grid.Column="1"
+                                Grid.Row="1"
+                                Margin="20,4"
+                                FontSize="24"
+                                TextContent="Scoop"
+                                Click="Quit"
+                            />
+                            <Rectangle 
+                                Grid.Column="1"
+                                Grid.Row="1"
+                                Height="2"
+                                Margin="0,0,0,-1"
+                                VerticalAlignment="Bottom"
+                                HorizontalAlignment="Stretch"
+                                Fill="{StaticResource ButtonBorder}"
+                            />
+                            <Rectangle 
+                                Grid.Column="1"
+                                Grid.Row="2"
+                                Height="2"
+                                Margin="0,0,0,-1"
+                                VerticalAlignment="Bottom"
+                                HorizontalAlignment="Stretch"
+                                Fill="{StaticResource ButtonBorder}"
+                            />
+                            <ctrls:MPDButton
+                                Grid.Column="1"    
+                                Grid.Row="3"
+                                Margin="20,4"
+                                FontSize="24"
+                                TextContent="Search Tokens"
+                                Click="SearchTokens"
+                            />
+                            <Rectangle 
+                                Grid.Column="1"
+                                Grid.Row="3"
+                                Height="2"
+                                Margin="0,0,0,-1"
+                                VerticalAlignment="Bottom"
+                                HorizontalAlignment="Stretch"
+                                Fill="{StaticResource ButtonBorder}"
+                            />
+                            <ctrls:MPDButton
+                                Grid.Column="1"
+                                Grid.Row="4"
+                                Margin="20,4"
+                                FontSize="24"
+                                TextContent="Tap All"
+                                Click="TapAll"
+                            />
+                            <Rectangle 
+                                Grid.Column="1"
+                                Grid.Row="4"
+                                Height="2"
+                                Margin="0,0,0,-1"
+                                VerticalAlignment="Bottom"
+                                HorizontalAlignment="Stretch"
+                                Fill="{StaticResource ButtonBorder}"
+                            />
+                            <ctrls:MPDButton
+                                Grid.Column="1"    
+                                Grid.Row="5"
+                                Margin="20,4"
+                                FontSize="24"
+                                TextContent="UnTap All"
+                                Click="UnTapAll"
+                            />
+                            <Rectangle 
+                                Grid.Column="1"
+                                Grid.Row="5"
+                                Height="2"
+                                Margin="0,0,0,-1"
+                                VerticalAlignment="Bottom"
+                                HorizontalAlignment="Stretch"
+                                Fill="{StaticResource ButtonBorder}"
+                            />
+                            <ctrls:MPDButton
+                                Grid.Column="1"
+                                Grid.Row="6"
+                                Margin="20,4"
+                                FontSize="20"
+                                TextContent="Grave ↦ Exile"
+                                Click="ExileGraveyard"
+                            />
+                            <Rectangle 
+                                Grid.Column="1"
+                                Grid.Row="6"
+                                Height="2"
+                                Margin="0,0,0,-1"
+                                VerticalAlignment="Bottom"
+                                HorizontalAlignment="Stretch"
+                                Fill="{StaticResource ButtonBorder}"
+                            />
+                            <ctrls:MPDButton
+                                Grid.Column="1"
+                                Grid.Row="7"
+                                Margin="20,4"
+                                FontSize="20"
+                                TextContent="Grave ↦ Deck"
+                                Click="UnburyGraveyard"
+                            />
+                            <Rectangle 
+                                Grid.Column="1"
+                                Grid.Row="7"
+                                Height="2"
+                                Margin="0,0,0,-1"
+                                VerticalAlignment="Bottom"
+                                HorizontalAlignment="Stretch"
+                                Fill="{StaticResource ButtonBorder}"
+                            />
+                            <ctrls:MPDButton
+                                Grid.Column="1"
+                                Grid.Row="8"
+                                Margin="20,4"
+                                FontSize="20"
+                                TextContent="Add Card Row"
+                                Click="AddMainRow"
+                            />
+                            <Rectangle 
+                                Grid.Column="1"
+                                Grid.Row="8"
+                                Height="2"
+                                Margin="0,0,0,-1"
+                                VerticalAlignment="Bottom"
+                                HorizontalAlignment="Stretch"
+                                Fill="{StaticResource ButtonBorder}"
+                            />
+                        </Grid>
+                    </Border>
                 </Grid>
             </Border>
         </Viewbox>

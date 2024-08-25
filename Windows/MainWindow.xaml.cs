@@ -1,46 +1,37 @@
-﻿using MTGProxyDesk.Classes;
-using MTGProxyDesk.Windows;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.IO;
 using System.Windows;
 
-namespace MTGProxyDesk
+namespace MTGProxyDesk.Windows
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : BaseWindow
     {
-        private static double _windowWidth = 0;
-        private static double _windowHeight = 0;
-        public static (double, double) WindowSize { get => (_windowWidth, _windowHeight); }
-        public static Action BringToFront = () => { };
+        public static (double, double) WindowSize { get; private set; }
 
-        public MainWindow()
+        public MainWindow() : base()
         {
             InitializeComponent();
+            CanClose = true;
             this.SizeChanged += OnWindowSizeChanged;
-            BringToFront = () =>
-            {
-                Activate();
-                Topmost = true;
-                Topmost = false;
-                Focus();
-            };
         }
 
         protected void OnWindowSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            _windowWidth = e.NewSize.Width;
-            _windowHeight = e.NewSize.Height;
+            WindowSize = (e.NewSize.Width, e.NewSize.Height);
         }
 
         protected override void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
-            MagicDeck.Instance.Clear();
-            Hand.Instance.Clear();
-            Graveyard.Instance.Clear();
-            Exile.Instance.Clear();
-            HandDisplay.CloseInstance();
-            CardViewer.CloseInstance();
+            
+            foreach (Window window in Application.Current.Windows)
+            {
+                if (window is BaseWindow && !this.Equals(window))
+                {
+                    ((BaseWindow)window).CanClose = true;
+                    window.Close();
+                }
+            }
 
             try { Directory.Delete(Helper.TempFolder, true); } catch 
             {

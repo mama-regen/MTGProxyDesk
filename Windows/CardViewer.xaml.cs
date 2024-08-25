@@ -1,6 +1,5 @@
 ﻿using MTGProxyDesk.Classes;
 using MTGProxyDesk.Controls;
-using MTGProxyDesk.Enums;
 using MTGProxyDesk.Extensions;
 using System.ComponentModel;
 using System.Windows;
@@ -9,47 +8,16 @@ using System.Windows.Media;
 
 namespace MTGProxyDesk.Windows
 {
-    public partial class CardViewer : Window
+    public partial class CardViewer : BaseWindow
     {
-        private static CardViewer? _instance = null;
-        private static object _lock = new object();
-        public static CardViewer Instance
-        {
-            get
-            {
-                lock (_lock)
-                {
-                    if (_instance == null )
-                    {
-                        _instance = new CardViewer();
-                    }
-                    return _instance;
-                }
-            }
-        }
-        public static void CloseInstance()
-        {
-            if (_instance == null) return;
-            _instance._canClose = true;
-            _instance.Close();
-            _instance = null;
-        }
-        public static Action BringToFront = () => { };
-
         private bool _initialHand = false;
-        private bool _canClose = false;
+        private CardPile _source;
 
-        private CardViewer()
+        public CardViewer(CardPile source)
         {
             InitializeComponent();
             DataContext = this;
-            BringToFront = () =>
-            {
-                Activate();
-                Topmost = true;
-                Topmost = false;
-                Focus();
-            };
+            _source = source;
         }
 
         public void DoMulligan(object sender, RoutedEventArgs e)
@@ -62,25 +30,21 @@ namespace MTGProxyDesk.Windows
             );
             if (result == MessageBoxResult.Cancel) return;
 
+            Hand hand = (Hand)_source;
+
             int count = this.GetChildrenOfType<CardControl>()!.Count();
             if (result == MessageBoxResult.Yes) count--;
 
-            foreach (Card card in Hand.Instance.CardShuffle)
-            {
-                MagicDeck.Instance.AddCard(card);
-            }
-            MagicDeck.Instance.Shuffle();
-            Hand.Instance.Clear();
+            foreach (Card card in hand.Cards) hand.Parent!.Deck.AddCard(card);
+            hand.Parent!.Deck.Shuffle();
+            hand.Clear();
 
-            for (int i = 0; i < count; i++)
-            {
-                Hand.Instance.AddCard(MagicDeck.Instance.Draw());
-            }
+            for (int i = 0; i < count; i++) hand.AddCard(hand.Parent.Deck.Draw());
 
-            ShowCards(Hand.Instance.CardShuffle, true);
+            ShowCards(hand.CardOrder, true);
         }
 
-        public void ShowCards(IEnumerable<Card> cards, bool initialHand = false) 
+        public void ShowCards(IEnumerable<int> cards, bool initialHand = false) 
         {
             _initialHand = initialHand;
 
@@ -116,18 +80,21 @@ namespace MTGProxyDesk.Windows
                 return btn;
             };
 
+            MagicDeck deck = _source is MagicDeck ? (MagicDeck)_source : _source.Parent!.Deck;
+
             i = 0;
-            foreach (Card card in cards)
+            foreach (int cardIdx in cards)
             {
                 CardControl cardCtrl = new CardControl();
-                cardCtrl.Card = card;
+                Card card = CardStock.Get(cardIdx)!;
+                cardCtrl.Card = cardIdx;
                 cardCtrl.MaxHeight = 600;
 
                 if (!initialHand)
                 {
                     if (
-                        MagicDeck.Instance.Commander != null && 
-                        MagicDeck.Instance.Commander.Id == cardCtrl.Card.Id
+                        deck.Commander != null && 
+                        CardStock.Get(deck.Commander)?.Id == (CardStock.Get(cardCtrl.Card)?.Id ?? "!")
                     )
                     {
                         MPDButton cmdBtn = MakeButton("Command Zone", ToCommandZone);
@@ -146,19 +113,19 @@ namespace MTGProxyDesk.Windows
                     MPDButton display = MakeButton("Reveal", DisplayCard);
                     cardCtrl.Children.Add(display);
 
-                    if (cardCtrl.Card.PlaySource != Enums.PlaySource.Hand)
+                    if (_source.GetType() != typeof(Hand))
                     {
                         MPDButton toHand = MakeButton("To Hand", ToHand);
                         cardCtrl.Children.Add(toHand);
                     }
 
-                    if (cardCtrl.Card.PlaySource != Enums.PlaySource.Exile)
+                    if (_source.GetType() != typeof(Exile))
                     {
                         MPDButton exile = MakeButton("Exile", ExileCard);
                         cardCtrl.Children.Add(exile);
                     }
 
-                    if (cardCtrl.Card.PlaySource != Enums.PlaySource.Graveyard)
+                    if (_source.GetType() != typeof(Graveyard))
                     {
                         MPDButton graveyard = MakeButton("Graveyard", BuryCard);
                         cardCtrl.Children.Add(graveyard);
@@ -175,85 +142,107 @@ namespace MTGProxyDesk.Windows
             MulliganButton.Visibility = initialHand ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        public void ShowCard(Card card)
+        public void ShowCard(int card)
         {
-            ShowCards(new Card[] { card });
+            ShowCards(new int[] { card });
         }
 
         public void Accept(object _, RoutedEventArgs __) { Close(); }
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            if (_canClose)
-            {
-                base.OnClosing(e);
-                return;
-            }
-            e.Cancel = true;
             if (_initialHand)
             {
                 _initialHand = false;
-                if (HandDisplay.Instance.WindowState == WindowState.Minimized)
+                if (((Hand)_source).Display!.WindowState == WindowState.Minimized)
                 {
-                    HandDisplay.Instance.WindowState = WindowState.Normal;
-                } else if (!HandDisplay.Instance.IsVisible)
+                    ((Hand)_source).Display!.WindowState = WindowState.Normal;
+                } else if (!((Hand)_source).Display!.IsVisible)
                 {
-                    HandDisplay.Instance.Show();
-                    HandDisplay.Instance.DisplayHand();
+                    try
+                    {
+                        ((Hand)_source).Display!.Show();
+                        (((Hand)_source).Display as HandDisplay)!.DisplayHand();
+                    }
+                    catch { }
                 }
             }
-            Hide();
+            CanClose = true;
+            base.OnClosing(e);
         }
 
         private void ToCommandZone(object s, RoutedEventArgs _)
         {
-            Replace(s, (__) => PlayMat.Instance.CommanderSlot.PhaseIn(), ()=>{});
+            Replace(s, (__, ___) => { }, _source.Parent!.CommanderControl.PhaseIn);
         }
 
         private void TopDeck(object s, RoutedEventArgs _)
-        { 
-            Replace(s, MagicDeck.Instance.PlaceOnTop, PlayMat.Instance.UpdateDeck);
+        {
+            MagicDeck deck = (_source is MagicDeck) ? (MagicDeck)_source : _source.Parent!.Deck;
+            Replace(s, (i, __) => deck.PlaceOnTop(i), _source.Parent!.UpdateDeck);
         }
 
         private void BotDeck(object s, RoutedEventArgs _)
         {
-            Replace(s, MagicDeck.Instance.PlaceOnBottom, PlayMat.Instance.UpdateDeck);
+            MagicDeck deck = (_source is MagicDeck) ? (MagicDeck)_source : _source.Parent!.Deck;
+            Replace(s, (i, __) => deck.PlaceOnBottom(i), _source.Parent!.UpdateDeck);
         }
 
         private void InsertRand(object s, RoutedEventArgs _)
         {
-            Replace(s, MagicDeck.Instance.PlaceAtRandom, PlayMat.Instance.UpdateDeck);
+            MagicDeck deck = (_source is MagicDeck) ? (MagicDeck)_source : _source.Parent!.Deck;
+            Replace(s, (i, __) => deck.PlaceAtRandom(i), _source.Parent!.UpdateDeck);
         }
 
         private void ToHand(object s, RoutedEventArgs _)
         {
-            Replace(s, Hand.Instance.AddCard, HandDisplay.Instance.DisplayHand);
+            Hand hand = (_source is Hand) ? (Hand)_source : _source.Parent!.Hand;
+            Replace(s, hand.AddCard, ((HandDisplay)hand.Display!).DisplayHand);
         }
 
         private void ExileCard(object s, RoutedEventArgs _)
         {
-            Replace(s, Exile.Instance.AddCard, PlayMat.Instance.UpdateExile);
+            Exile exile = (_source is Exile) ? (Exile)_source : _source.Parent!.Exile;
+            Replace(s, exile.AddCard, _source.Parent!.UpdateExile);
         }
 
         private void BuryCard(object s, RoutedEventArgs _)
         {
-            Replace(s, Graveyard.Instance.AddCard, PlayMat.Instance.UpdateGraveyard);
+            Graveyard graveyard = (_source is Graveyard) ? (Graveyard)_source : _source.Parent!.Graveyard;
+            Replace(s, graveyard.AddCard, _source.Parent!.UpdateGraveyard);
         }
 
-        private void Replace(object s, Action<Card> placement, Action viewUpdate)
+        private void Replace(object s, Action<int, int> placement, Action viewUpdate)
         {
             CardControl ctrl = ((DependencyObject)s).GetAncestorOfType<CardControl>()!;
-            RemoveFromSource(ctrl.Card!);
-            placement(ctrl.Card!);
+            _source.RemoveCard(ctrl.Card!.Value);
+            placement(ctrl.Card!.Value, 1);
             ViewGrid.Children.Remove(ctrl);
             ReindexCards();
             viewUpdate();
+
+            switch(_source.GetType().ToString().Split(".").Last())
+            {
+                case "Graveyard":
+                    _source.Parent!.UpdateGraveyard();
+                    break;
+                case "Exile":
+                    _source.Parent!.UpdateExile();
+                    break;
+                case "Deck":
+                    _source.Parent!.UpdateDeck();
+                    break;
+                case "Hand":
+                    ((HandDisplay)_source.Parent!.Hand.Display!).DisplayHand();
+                    break;
+            }
         }
 
         private void DisplayCard(object sender, RoutedEventArgs __) 
         {
-            PlayMat.Instance.ShowCard = new ImageBrush(((DependencyObject)sender).GetAncestorOfType<CardControl>()!.Card!.Image);
-            PlayMat.Instance.ShowCardVisibility = Visibility.Visible;
+            Card card = CardStock.Get(((DependencyObject)sender).GetAncestorOfType<CardControl>()!.Card!.Value)!;
+            _source.Parent!.ShowCard = new ImageBrush(card.Image);
+            _source.Parent!.ShowCardVisibility = Visibility.Visible;
         }
 
         private void ReindexCards()
@@ -265,7 +254,7 @@ namespace MTGProxyDesk.Windows
 
             if (ctrls.Count() == 0)
             {
-                Hide();
+                Close();
                 return;
             }
 
@@ -293,32 +282,6 @@ namespace MTGProxyDesk.Windows
                 Grid.SetColumn(ctrl, (int)(i % 4));
                 Grid.SetRow(ctrl, (int)(i++ / 4));
                 ViewGrid.Children.Add(ctrl);
-            }
-        }
-
-        private void RemoveFromSource(Card card)
-        {
-            switch(card.PlaySource)
-            {
-                case PlaySource.Command:
-                    PlayMat.Instance.CommanderSlot.PhaseOut();
-                    break;
-                case PlaySource.Hand:
-                    Hand.Instance.RemoveCard(card);
-                    HandDisplay.Instance.DisplayHand();
-                    break;
-                case PlaySource.Deck:
-                    MagicDeck.Instance.RemoveCard(card);
-                    PlayMat.Instance.UpdateDeck();
-                    break;
-                case PlaySource.Graveyard:
-                    Graveyard.Instance.RemoveCard(card);
-                    PlayMat.Instance.UpdateGraveyard();
-                    break;
-                case PlaySource.Exile:
-                    Exile.Instance.RemoveCard(card);
-                    PlayMat.Instance.UpdateExile();
-                    break;
             }
         }
     }

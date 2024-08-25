@@ -6,11 +6,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>img\mpd.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="img\card_back.png" />
-    <None Remove="img\bg.png" />
+    <None Remove="img\mpd.ico" />
     <None Remove="img\playmat_black.png" />
     <None Remove="img\playmat_blue.png" />
     <None Remove="img\playmat_default.png" />
@@ -18,6 +19,7 @@
     <None Remove="img\playmat_red.png" />
     <None Remove="img\playmat_white.png" />
     <None Remove="img\card_back.png" />
+    <None Remove="img\splash.png" />
     <None Remove="img\tap.png" />
 	<None Remove="scripts\cds.py" />
     <None Remove="scripts\py_readme.md" />
@@ -41,7 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="img\bg.png">
+    <Resource Include="img\mpd.ico">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
     <Resource Include="img\playmat_black.png">
@@ -70,6 +72,12 @@
     </Resource>
 	<Resource Include="scripts\cds.py" />
     <Resource Include="scripts\py_readme.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SplashScreen Include="img\splash.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </SplashScreen>
   </ItemGroup>
 
   <ItemGroup>

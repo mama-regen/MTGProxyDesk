@@ -9,6 +9,10 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="StartPage"
 >
+    <Page.Resources>
+        <SolidColorBrush x:Key="TransparentBG1" Color="{DynamicResource BG1_Color}" Opacity="0.75"/>
+    </Page.Resources>
+    
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*" />
@@ -32,7 +36,7 @@
 
         <Viewbox Grid.Column="1" Grid.Row="1">
             <Border BorderBrush="Black" BorderThickness="1" CornerRadius="5">
-                <Grid Background="{DynamicResource BG1}">
+                <Grid Background="{StaticResource TransparentBG1}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*" />
                         <ColumnDefinition Width="4*" />

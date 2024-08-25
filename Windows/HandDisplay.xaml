@@ -1,4 +1,4 @@
-﻿<Window 
+﻿<local:BaseWindow 
     x:Class="MTGProxyDesk.Windows.HandDisplay"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -33,16 +33,6 @@
 
     <Border Background="{DynamicResource DarkerGradient_Diag}">
         <DockPanel LastChildFill="True">
-            <DockPanel DockPanel.Dock="Top" Height="46">
-                <ctrls:MPDButton
-                    HorizontalAlignment="Right"
-                    FontSize="30"
-                    TextContent=" Untap All "
-                    Margin="0,2,10,2"
-                    DockPanel.Dock="Right" 
-                    Click="UntapAllCards"
-                />
-            </DockPanel>
             <ScrollViewer 
                 HorizontalAlignment="Stretch" 
                 VerticalAlignment="Stretch"
@@ -77,4 +67,4 @@
             </ScrollViewer>
         </DockPanel>
     </Border>
-</Window>
+</local:BaseWindow>

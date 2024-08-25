@@ -17,8 +17,62 @@ namespace MTGProxyDesk.Controls
 
         public Visibility TextVisibility { get; private set; } = Visibility.Visible;
 
-        private Card? _Card;
-        public Card? Card
+        private bool _tapped = false;
+        public bool Tapped
+        {
+            get => _tapped;
+            set
+            {
+                if (_tapped != value)
+                {
+                    TapVisibility = value ? Visibility.Collapsed : Visibility.Visible;
+                    UnTapVisibility = value ? Visibility.Visible : Visibility.Collapsed;
+                }
+            }
+        }
+
+        public static readonly DependencyProperty TapVisibilityProperty = DependencyProperty.Register(
+            "TapVisibility",
+            typeof(Visibility),
+            typeof(CardControl),
+            new PropertyMetadata(Visibility.Visible)
+        );
+
+        public static readonly DependencyProperty UnTapVisibilityProperty = DependencyProperty.Register(
+            "UnTapVisibility",
+            typeof(Visibility),
+            typeof(CardControl),
+            new PropertyMetadata(Visibility.Collapsed)
+        );
+
+        public Visibility TapVisibility 
+        { 
+            get => (Visibility)GetValue(TapVisibilityProperty);
+            set
+            {
+                if (TapVisibility != value)
+                {
+                    SetValue(TapVisibilityProperty, value);
+                    _tapped = value == Visibility.Collapsed;
+                    OnPropertyChanged("TapVisibility");
+                }
+            }
+        }
+        public Visibility UnTapVisibility { 
+            get => (Visibility)GetValue(UnTapVisibilityProperty);
+            set
+            {
+                if (UnTapVisibility != value)
+                {
+                    SetValue(UnTapVisibilityProperty, value);
+                    _tapped = value == Visibility.Visible;
+                    OnPropertyChanged("UnTapVisibility");
+                }
+            }
+        }
+
+        private int? _Card;
+        public int? Card
         {
             get { return _Card; }
             set
@@ -27,22 +81,38 @@ namespace MTGProxyDesk.Controls
                 {
                     _Card = null;
                     SetToDefaultImage();
+                    return;
                 }
-                else
-                {
-                    _Card = value;
-                    OnPropertyChanged("Card");
-                    CardImage = new ImageBrush(_Card.Image);
-                }
+
+                _Card = value;
+                OnPropertyChanged("Card");
+                Card? cardActual = CardStock.Get(_Card!.Value);
+                if (cardActual == null) SetToDefaultImage();
+                else CardImage = new ImageBrush(cardActual!.Image);
             }
         }
 
+        private int _count = 0;
         public int Count
         {
-            get => _Card == null ? 0 : _Card!.Count;
+            get => _Card == null ? 0 : _count;
             set
             {
-                if (_Card != null) _Card.Count = value;
+                if (_Card != null) _count = value;
+            }
+        }
+
+        public bool Assignable { get; set; } = true;
+
+        private bool _defaultImg = true;
+        public bool DefaultImageOnEmpty 
+        {
+            get => _defaultImg;
+            set
+            {
+                _defaultImg = value;
+                defaultImage = null;
+                if (_Card == null) SetToDefaultImage(); 
             }
         }
 
@@ -104,23 +174,52 @@ namespace MTGProxyDesk.Controls
 
         public void HandleClick(object sender, RoutedEventArgs e)
         {
-            if (Hand.Instance.CardBuffer == null)
+            Card? heldCard = HeldCard.Get();
+            if (heldCard == null)
             {
-                ShowMenu();
+                if (Card != null)
+                {
+                    PlayMat? playMat = this.GetAncestorOfType<PlayMat>();
+                    MPDButton? btn = this.GetChildrenOfType<MPDButton>().Where(b => b.Uid == "CmdBtn").FirstOrDefault();
+
+                    if (playMat == null || !playMat.IsCommander)
+                    {
+                        if (btn != null) btn.Visibility = Visibility.Collapsed;
+                        ShowMenu();
+                        return;
+                    }
+
+                    Card? cmdMaybe = CardStock.Get(playMat!.CommanderControl.Card);
+                    Card? crdMaybe = CardStock.Get(Card);
+
+                    if (
+                        crdMaybe != null &&
+                        cmdMaybe != null &&
+                        crdMaybe!.Id == cmdMaybe!.Id &&
+                        btn != null
+                    ) btn.Visibility = Visibility.Visible;
+                    else if (btn != null) btn.Visibility = Visibility.Collapsed;
+
+                    ShowMenu();
+                }
+                else if (DefaultImageOnEmpty) ShowMenu();
                 return;
             }
 
-            if (Card == null)
+            if (!Assignable) return;
+
+            if (Card != null)
             {
-                Card = Hand.Instance.CardBuffer;
-                Hand.Instance.CardBuffer = null;
+                if (Card == CardStock.IndexOf(heldCard))
+                {
+                    Count++;
+                    TextContent = Count.ToString();
+                }
                 return;
             }
 
-            if (Hand.Instance.CardBuffer!.Id != Card.Id) return;
-
-            Count += Hand.Instance.CardBuffer.Count;
-            Hand.Instance.CardBuffer = null;
+            Card = CardStock.IndexOf(heldCard);
+            HeldCard.Set(null);
         }
 
         public void ShowMenu(object sender, RoutedEventArgs e)
@@ -150,19 +249,49 @@ namespace MTGProxyDesk.Controls
             OnPropertyChanged("TextVisibility");
         }
 
+        public void PhaseIn()
+        {
+            Opacity = 1.0;
+            IsHitTestVisible = true;
+        }
+
+        public void PhaseOut()
+        {
+            HideMenu();
+            Opacity = 0.6;
+            IsHitTestVisible = false;
+        }
+
+        public void Tap()
+        {
+            Tapped = true;
+        }
+
+        public void UnTap()
+        {
+            Tapped = false;
+        }
+
         private void SetToDefaultImage()
         {
             if (defaultImage == null)
             {
-                defaultImage = new BitmapImage(
-                    new Uri(
-                        @"pack://application:,,,/" + 
-                        Assembly.GetCallingAssembly().GetName().Name + 
-                        ";component/img/card_back.png", 
-                        UriKind.Absolute
-                    )
-                );
+                defaultImage = DefaultImageOnEmpty ?
+                    new BitmapImage(
+                        new Uri(
+                            @"pack://application:,,,/" +
+                            Assembly.GetCallingAssembly().GetName().Name +
+                            ";component/img/card_back.png",
+                            UriKind.Absolute
+                        )
+                    ) :
+                    BitmapImage.Create(
+                        1, 1, 96, 96,
+                        PixelFormats.Bgra32, null,
+                        new Byte[] { 0, 0, 0, 0 }, 4
+                    ) as BitmapImage;
             }
+
             CardImage = new ImageBrush(defaultImage);
         }
 
