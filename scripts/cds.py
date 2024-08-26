@@ -57,6 +57,9 @@ if __name__ == "__main__":
     not_found: list[str] = []
     cards: list[tuple[str, int]] = []
 
+    if not os.path.exists(temp_fldr()):
+        os.mkdir(temp_fldr())
+
     for i, line in enumerate(card_list):
         now: int = round(time() * 1000)
 
