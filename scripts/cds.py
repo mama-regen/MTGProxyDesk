@@ -72,15 +72,14 @@ if __name__ == "__main__":
         else: card_name = ' '.join(splt)
         print(f'Searching for "{card_name}"')
         
-        card_actual = None
-        try: card_actual: dict = GetCard(card_name)
+        try: 
+            card_actual: dict = GetCard(card_name)
+            image: tuple[str, str] = FirstImg(card_actual)
+            request.urlretrieve(image[0], temp_fldr(image[1]))
+            cards.append([card_actual["id"], cnt, AllowAny(card_actual)])
         except Exception as e:
             not_found.append(card_name)
             continue
-
-        image: tuple[str, str] = FirstImg(card_actual)
-        request.urlretrieve(image[0], temp_fldr(image[1]))
-        cards.append([card_actual["id"], cnt, AllowAny(card_actual)])
 
         wait_for: float = 100 - ((time() * 1000) - now)
         if (wait_for > 0): sleep(wait_for/1000)
