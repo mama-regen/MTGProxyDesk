@@ -14,6 +14,7 @@ namespace MTGProxyDesk.Windows
         {
             InitializeComponent();
             DataContext = this;
+            CanClose = true;
         }
 
         public async void SearchForCard(object sender, RoutedEventArgs e)
